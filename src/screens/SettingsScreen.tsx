@@ -2,21 +2,19 @@ import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { ScreenContainer } from '../components/ScreenContainer';
-import type { Habit } from '../types/habit';
+import type { HabitNames } from '../types/habit';
 
 type SettingsScreenProps = {
-  habits: Habit[];
-  onSaveHabitNames: (habitNames: string[]) => void;
+  habitNames: HabitNames;
+  onSaveHabitNames: (habitNames: HabitNames) => void;
 };
 
-export function SettingsScreen({ habits, onSaveHabitNames }: SettingsScreenProps) {
-  const [habitNameInputs, setHabitNameInputs] = useState(() =>
-    habits.map((habit) => habit.name)
-  );
+export function SettingsScreen({ habitNames, onSaveHabitNames }: SettingsScreenProps) {
+  const [habitNameInputs, setHabitNameInputs] = useState<string[]>(habitNames);
 
   useEffect(() => {
-    setHabitNameInputs(habits.map((habit) => habit.name));
-  }, [habits]);
+    setHabitNameInputs(habitNames);
+  }, [habitNames]);
 
   const updateHabitInput = (index: number, value: string) => {
     setHabitNameInputs((currentValues) =>
@@ -29,11 +27,16 @@ export function SettingsScreen({ habits, onSaveHabitNames }: SettingsScreenProps
   const saveHabitNames = () => {
     const trimmedNames = habitNameInputs.map((name, index) => {
       const trimmedName = name.trim();
-      return trimmedName.length > 0 ? trimmedName : habits[index]?.name ?? '';
+      return trimmedName.length > 0 ? trimmedName : habitNames[index] ?? '';
     });
 
-    setHabitNameInputs(trimmedNames);
-    onSaveHabitNames(trimmedNames);
+    const nextHabitNames: HabitNames = [
+      trimmedNames[0] ?? habitNames[0],
+      trimmedNames[1] ?? habitNames[1],
+    ];
+
+    setHabitNameInputs(nextHabitNames);
+    onSaveHabitNames(nextHabitNames);
   };
 
   return (
@@ -46,8 +49,8 @@ export function SettingsScreen({ habits, onSaveHabitNames }: SettingsScreenProps
       <View style={styles.card}>
         <Text style={styles.cardTitle}>습관 이름 설정</Text>
 
-        {habits.map((habit, index) => (
-          <View key={habit.id} style={styles.inputGroup}>
+        {habitNames.map((habitName, index) => (
+          <View key={`${habitName}-${index}`} style={styles.inputGroup}>
             <Text style={styles.label}>습관 {index + 1}</Text>
             <TextInput
               value={habitNameInputs[index] ?? ''}

@@ -2,17 +2,19 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { HabitCard } from '../components/HabitCard';
 import { ScreenContainer } from '../components/ScreenContainer';
-import type { Habit } from '../types/habit';
+import type { DailyRecord, HabitNames } from '../types/habit';
 import { formatTodayLabel } from '../utils/date';
 
 type HomeScreenProps = {
-  habits: Habit[];
+  habitNames: HabitNames;
+  todayRecord: DailyRecord;
   allHabitsChecked: boolean;
-  onToggleHabit: (habitId: string) => void;
+  onToggleHabit: (habitKey: 'habit1' | 'habit2') => void;
 };
 
 export function HomeScreen({
-  habits,
+  habitNames,
+  todayRecord,
   allHabitsChecked,
   onToggleHabit,
 }: HomeScreenProps) {
@@ -25,9 +27,16 @@ export function HomeScreen({
       </View>
 
       <View style={styles.cardList}>
-        {habits.map((habit) => (
-          <HabitCard key={habit.id} habit={habit} onToggle={onToggleHabit} />
-        ))}
+        <HabitCard
+          habitName={habitNames[0]}
+          isChecked={todayRecord.habit1}
+          onToggle={() => onToggleHabit('habit1')}
+        />
+        <HabitCard
+          habitName={habitNames[1]}
+          isChecked={todayRecord.habit2}
+          onToggle={() => onToggleHabit('habit2')}
+        />
       </View>
 
       {allHabitsChecked ? (

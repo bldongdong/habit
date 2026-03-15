@@ -1,28 +1,27 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import type { Habit } from '../types/habit';
-
 type HabitCardProps = {
-  habit: Habit;
-  onToggle: (habitId: string) => void;
+  habitName: string;
+  isChecked: boolean;
+  onToggle: () => void;
 };
 
-export function HabitCard({ habit, onToggle }: HabitCardProps) {
+export function HabitCard({ habitName, isChecked, onToggle }: HabitCardProps) {
   return (
-    <View style={[styles.card, habit.isChecked && styles.cardChecked]}>
+    <View style={[styles.card, isChecked && styles.cardChecked]}>
       <View style={styles.textBlock}>
         <Text style={styles.label}>오늘의 습관</Text>
-        <Text style={styles.name}>{habit.name}</Text>
+        <Text style={styles.name}>{habitName}</Text>
       </View>
 
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={`${habit.name} 체크 버튼`}
-        onPress={() => onToggle(habit.id)}
-        style={[styles.button, habit.isChecked && styles.buttonChecked]}
+        accessibilityLabel={`${habitName} 체크 버튼`}
+        onPress={onToggle}
+        style={[styles.button, isChecked && styles.buttonChecked]}
       >
-        <Text style={[styles.buttonText, habit.isChecked && styles.buttonTextChecked]}>
-          {habit.isChecked ? '완료' : '체크'}
+        <Text style={[styles.buttonText, isChecked && styles.buttonTextChecked]}>
+          {isChecked ? '완료' : '체크'}
         </Text>
       </Pressable>
     </View>
