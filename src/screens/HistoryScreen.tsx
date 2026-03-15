@@ -1,10 +1,13 @@
-import { useState } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useMemo, useState } from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 
 import { ScreenContainer } from '../components/ScreenContainer';
+import { StatusDot } from '../components/StatusDot';
 import type { HabitNames, RecordsByDate } from '../types/habit';
 import {
   formatMonthDayLabel,
+  getCurrentDay,
   formatYearMonthLabel,
   getCurrentYearMonth,
   getDateKeysDescendingForMonth,
@@ -19,10 +22,30 @@ export function HistoryScreen({ habitNames, records }: HistoryScreenProps) {
   const currentYearMonth = getCurrentYearMonth();
   const [viewedYear, setViewedYear] = useState(currentYearMonth.year);
   const [viewedMonth, setViewedMonth] = useState(currentYearMonth.month);
-  const [yearInput, setYearInput] = useState(String(currentYearMonth.year));
-  const [monthInput, setMonthInput] = useState(String(currentYearMonth.month));
+  const [selectedYear, setSelectedYear] = useState(currentYearMonth.year);
+  const [selectedMonth, setSelectedMonth] = useState(currentYearMonth.month);
+  const [isSearchExpanded, setIsSearchExpanded] = useState(false);
+
+  const yearOptions = useMemo(
+    () =>
+      Array.from({ length: 11 }, (_, index) => currentYearMonth.year - 5 + index),
+    [currentYearMonth.year]
+  );
+
+  const monthOptions = useMemo(
+    () => Array.from({ length: 12 }, (_, index) => index + 1),
+    []
+  );
 
   const currentMonthDateKeys = getDateKeysDescendingForMonth(viewedYear, viewedMonth);
+  const isViewingCurrentMonth =
+    viewedYear === currentYearMonth.year && viewedMonth === currentYearMonth.month;
+  const visibleDateKeys = isViewingCurrentMonth
+    ? currentMonthDateKeys.filter((dateKey) => {
+        const day = Number(dateKey.slice(-2));
+        return day <= getCurrentDay();
+      })
+    : currentMonthDateKeys;
   const daysInMonth = currentMonthDateKeys.length;
 
   const moveToPreviousMonth = () => {
@@ -30,14 +53,14 @@ export function HistoryScreen({ habitNames, records }: HistoryScreenProps) {
       const nextYear = viewedYear - 1;
       setViewedYear(nextYear);
       setViewedMonth(12);
-      setYearInput(String(nextYear));
-      setMonthInput('12');
+      setSelectedYear(nextYear);
+      setSelectedMonth(12);
       return;
     }
 
     const nextMonth = viewedMonth - 1;
     setViewedMonth(nextMonth);
-    setMonthInput(String(nextMonth));
+    setSelectedMonth(nextMonth);
   };
 
   const moveToNextMonth = () => {
@@ -45,32 +68,19 @@ export function HistoryScreen({ habitNames, records }: HistoryScreenProps) {
       const nextYear = viewedYear + 1;
       setViewedYear(nextYear);
       setViewedMonth(1);
-      setYearInput(String(nextYear));
-      setMonthInput('1');
+      setSelectedYear(nextYear);
+      setSelectedMonth(1);
       return;
     }
 
     const nextMonth = viewedMonth + 1;
     setViewedMonth(nextMonth);
-    setMonthInput(String(nextMonth));
+    setSelectedMonth(nextMonth);
   };
 
   const applyViewedMonth = () => {
-    const nextYear = Number(yearInput);
-    const nextMonth = Number(monthInput);
-
-    if (!Number.isInteger(nextYear) || !Number.isInteger(nextMonth)) {
-      return;
-    }
-
-    if (nextMonth < 1 || nextMonth > 12) {
-      return;
-    }
-
-    setViewedYear(nextYear);
-    setViewedMonth(nextMonth);
-    setYearInput(String(nextYear));
-    setMonthInput(String(nextMonth));
+    setViewedYear(selectedYear);
+    setViewedMonth(selectedMonth);
   };
 
   const habit1SuccessCount = currentMonthDateKeys.filter(
@@ -112,29 +122,54 @@ export function HistoryScreen({ habitNames, records }: HistoryScreenProps) {
           </Pressable>
         </View>
 
-        <View style={styles.pickerRow}>
-          <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>연도</Text>
-            <TextInput
-              keyboardType="numeric"
-              value={yearInput}
-              onChangeText={setYearInput}
-              style={styles.input}
-            />
+        <Pressable
+          onPress={() => setIsSearchExpanded((current) => !current)}
+          style={styles.searchToggle}
+        >
+          <Text style={styles.searchToggleText}>
+            상세 검색 {isSearchExpanded ? '접기' : '열기'}
+          </Text>
+        </Pressable>
+
+        {isSearchExpanded ? (
+          <View style={styles.searchPanel}>
+            <View style={styles.pickerRow}>
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>연도</Text>
+                <View style={styles.pickerWrapper}>
+                  <Picker
+                    selectedValue={selectedYear}
+                    onValueChange={(value) => setSelectedYear(Number(value))}
+                    style={styles.picker}
+                  >
+                    {yearOptions.map((year) => (
+                      <Picker.Item key={year} label={`${year}년`} value={year} />
+                    ))}
+                  </Picker>
+                </View>
+              </View>
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>월</Text>
+                <View style={styles.pickerWrapper}>
+                  <Picker
+                    selectedValue={selectedMonth}
+                    onValueChange={(value) => setSelectedMonth(Number(value))}
+                    style={styles.picker}
+                  >
+                    {monthOptions.map((month) => (
+                      <Picker.Item key={month} label={`${month}월`} value={month} />
+                    ))}
+                  </Picker>
+                </View>
+              </View>
+            </View>
+
+            <Pressable onPress={applyViewedMonth} style={styles.applyButton}>
+              <Text style={styles.applyButtonText}>이동</Text>
+            </Pressable>
           </View>
-          <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>월</Text>
-            <TextInput
-              keyboardType="numeric"
-              value={monthInput}
-              onChangeText={setMonthInput}
-              style={styles.input}
-            />
-          </View>
-          <Pressable onPress={applyViewedMonth} style={styles.applyButton}>
-            <Text style={styles.applyButtonText}>이동</Text>
-          </Pressable>
-        </View>
+        ) : null}
       </View>
 
       <View style={styles.dashboardRow}>
@@ -197,14 +232,18 @@ export function HistoryScreen({ habitNames, records }: HistoryScreenProps) {
           <Text style={styles.cell}>{habitNames[1]}</Text>
         </View>
 
-        {currentMonthDateKeys.map((dateKey) => {
+        {visibleDateKeys.map((dateKey) => {
           const dailyRecord = records[dateKey];
 
           return (
             <View key={dateKey} style={styles.row}>
               <Text style={[styles.cell, styles.dateCell]}>{formatMonthDayLabel(dateKey)}</Text>
-              <Text style={styles.cell}>{dailyRecord?.habit1 ? 'O' : 'X'}</Text>
-              <Text style={styles.cell}>{dailyRecord?.habit2 ? 'O' : 'X'}</Text>
+              <View style={styles.statusCell}>
+                <StatusDot success={Boolean(dailyRecord?.habit1)} />
+              </View>
+              <View style={styles.statusCell}>
+                <StatusDot success={Boolean(dailyRecord?.habit2)} />
+              </View>
             </View>
           );
         })}
@@ -257,9 +296,20 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#2b2b28',
   },
+  searchToggle: {
+    alignSelf: 'flex-start',
+    paddingVertical: 4,
+  },
+  searchToggleText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#5f5f59',
+  },
+  searchPanel: {
+    gap: 12,
+  },
   pickerRow: {
     flexDirection: 'row',
-    alignItems: 'flex-end',
     gap: 10,
   },
   inputGroup: {
@@ -270,17 +320,19 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#5f5f59',
   },
-  input: {
+  pickerWrapper: {
     borderWidth: 1,
     borderColor: '#d9d9d2',
     borderRadius: 14,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    fontSize: 16,
-    color: '#1e1e1c',
     backgroundColor: '#fbfbf9',
+    overflow: 'hidden',
+  },
+  picker: {
+    width: '100%',
+    color: '#1e1e1c',
   },
   applyButton: {
+    alignSelf: 'flex-start',
     borderRadius: 14,
     backgroundColor: '#1e1e1c',
     paddingHorizontal: 18,
@@ -372,6 +424,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 15,
     color: '#2b2b28',
+  },
+  statusCell: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
   },
   dateHeader: {
     flex: 1.5,

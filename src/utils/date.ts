@@ -24,6 +24,10 @@ export function getCurrentYearMonth() {
   };
 }
 
+export function getCurrentDay() {
+  return new Date().getDate();
+}
+
 export function formatYearMonthLabel(year: number, month: number) {
   const date = new Date(year, month - 1, 1);
 
