@@ -15,24 +15,36 @@ export function getTodayKey() {
   return `${year}-${month}-${day}`;
 }
 
-export function formatCurrentMonthLabel() {
+export function getCurrentYearMonth() {
+  const today = new Date();
+
+  return {
+    year: today.getFullYear(),
+    month: today.getMonth() + 1,
+  };
+}
+
+export function formatYearMonthLabel(year: number, month: number) {
+  const date = new Date(year, month - 1, 1);
+
   return new Intl.DateTimeFormat('ko-KR', {
     year: 'numeric',
     month: 'long',
-  }).format(new Date());
+  }).format(date);
 }
 
-export function getCurrentMonthDateKeysDescending() {
-  const today = new Date();
-  const year = today.getFullYear();
-  const monthIndex = today.getMonth();
-  const lastDate = new Date(year, monthIndex + 1, 0).getDate();
+export function getDaysInMonth(year: number, month: number) {
+  return new Date(year, month, 0).getDate();
+}
+
+export function getDateKeysDescendingForMonth(year: number, month: number) {
+  const lastDate = getDaysInMonth(year, month);
   const dateKeys: string[] = [];
 
   for (let day = lastDate; day >= 1; day -= 1) {
-    const month = String(monthIndex + 1).padStart(2, '0');
-    const date = String(day).padStart(2, '0');
-    dateKeys.push(`${year}-${month}-${date}`);
+    const monthText = String(month).padStart(2, '0');
+    const dateText = String(day).padStart(2, '0');
+    dateKeys.push(`${year}-${monthText}-${dateText}`);
   }
 
   return dateKeys;
