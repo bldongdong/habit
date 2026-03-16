@@ -7,9 +7,10 @@ import { DEFAULT_APP_DATA, EMPTY_DAILY_RECORD } from './src/constants/habits';
 import { HistoryScreen } from './src/screens/HistoryScreen';
 import { HomeScreen } from './src/screens/HomeScreen';
 import { SettingsScreen } from './src/screens/SettingsScreen';
-import type { AppData, AppTab, DailyRecord, HabitNames } from './src/types/habit';
+import type { AppData, AppTab, DailyRecord, HabitKey, HabitNames } from './src/types/habit';
 import { getTodayKey } from './src/utils/date';
 import { loadAppData, saveAppData } from './src/utils/storage';
+import { getHabitStreak } from './src/utils/streak';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<AppTab>('home');
@@ -37,7 +38,7 @@ export default function App() {
   const todayKey = getTodayKey();
   const todayRecord: DailyRecord = appData.records[todayKey] ?? EMPTY_DAILY_RECORD;
 
-  const toggleHabit = (habitKey: 'habit1' | 'habit2') => {
+  const toggleHabit = (habitKey: HabitKey) => {
     setAppData((currentAppData) => {
       const currentRecord = currentAppData.records[todayKey] ?? EMPTY_DAILY_RECORD;
 
@@ -62,6 +63,8 @@ export default function App() {
   };
 
   const allHabitsChecked = todayRecord.habit1 && todayRecord.habit2;
+  const habit1Streak = getHabitStreak(appData.records, 'habit1');
+  const habit2Streak = getHabitStreak(appData.records, 'habit2');
 
   const renderScreen = () => {
     if (activeTab === 'history') {
@@ -81,6 +84,8 @@ export default function App() {
       <HomeScreen
         habitNames={appData.habitNames}
         todayRecord={todayRecord}
+        habit1Streak={habit1Streak}
+        habit2Streak={habit2Streak}
         allHabitsChecked={allHabitsChecked}
         onToggleHabit={toggleHabit}
       />

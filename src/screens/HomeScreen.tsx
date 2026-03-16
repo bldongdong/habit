@@ -2,28 +2,50 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { HabitCard } from '../components/HabitCard';
 import { ScreenContainer } from '../components/ScreenContainer';
-import type { DailyRecord, HabitNames } from '../types/habit';
+import type { DailyRecord, HabitKey, HabitNames } from '../types/habit';
 import { formatTodayLabel } from '../utils/date';
 
 type HomeScreenProps = {
   habitNames: HabitNames;
   todayRecord: DailyRecord;
+  habit1Streak: number;
+  habit2Streak: number;
   allHabitsChecked: boolean;
-  onToggleHabit: (habitKey: 'habit1' | 'habit2') => void;
+  onToggleHabit: (habitKey: HabitKey) => void;
 };
 
 export function HomeScreen({
   habitNames,
   todayRecord,
+  habit1Streak,
+  habit2Streak,
   allHabitsChecked,
   onToggleHabit,
 }: HomeScreenProps) {
+  const shouldShowHabit1Streak = habit1Streak >= 3;
+  const shouldShowHabit2Streak = habit2Streak >= 3;
+  const shouldShowStreakSection = shouldShowHabit1Streak || shouldShowHabit2Streak;
+
   return (
     <ScreenContainer>
       <View style={styles.header}>
         <Text style={styles.date}>{formatTodayLabel()}</Text>
         <Text style={styles.title}>오늘의 두 가지</Text>
         <Text style={styles.subtitle}>많이 말고, 중요한 두 가지만</Text>
+        {shouldShowStreakSection ? (
+          <View style={styles.streakSection}>
+            {shouldShowHabit1Streak ? (
+              <Text style={styles.streakText}>
+                {habitNames[0]} 🔥 {habit1Streak}
+              </Text>
+            ) : null}
+            {shouldShowHabit2Streak ? (
+              <Text style={styles.streakText}>
+                {habitNames[1]} 🔥 {habit2Streak}
+              </Text>
+            ) : null}
+          </View>
+        ) : null}
       </View>
 
       <View style={styles.cardList}>
@@ -68,6 +90,15 @@ const styles = StyleSheet.create({
     fontSize: 17,
     lineHeight: 24,
     color: '#5c5c56',
+  },
+  streakSection: {
+    marginTop: 4,
+    gap: 6,
+  },
+  streakText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#454540',
   },
   cardList: {
     gap: 14,
