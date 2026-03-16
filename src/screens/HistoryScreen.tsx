@@ -1,17 +1,25 @@
 import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
 
+import { MonthRecordGrid } from '../components/MonthRecordGrid';
 import { ScreenContainer } from '../components/ScreenContainer';
 import { StatusDot } from '../components/StatusDot';
+import { WeeklySegmentedBar } from '../components/WeeklySegmentedBar';
 import type { HabitNames, RecordsByDate } from '../types/habit';
 import {
   formatMonthDayLabel,
-  getCurrentDay,
+  formatWeekRangeLabel,
   formatYearMonthLabel,
+  getCurrentDay,
   getCurrentYearMonth,
   getDateKeysDescendingForMonth,
+  getEndOfWeek,
+  getStartOfWeek,
+  isFutureYearMonth,
+  shiftDateByDays,
+  shiftYearMonth,
 } from '../utils/date';
+import { getWeeklyHabitCount } from '../utils/weekly';
 
 type HistoryScreenProps = {
   habitNames: HabitNames;
@@ -19,69 +27,60 @@ type HistoryScreenProps = {
 };
 
 export function HistoryScreen({ habitNames, records }: HistoryScreenProps) {
+  const currentDate = useMemo(() => new Date(), []);
   const currentYearMonth = getCurrentYearMonth();
+  const currentWeekStart = useMemo(() => getStartOfWeek(currentDate), [currentDate]);
+
+  const [viewedWeekStart, setViewedWeekStart] = useState(currentWeekStart);
   const [viewedYear, setViewedYear] = useState(currentYearMonth.year);
   const [viewedMonth, setViewedMonth] = useState(currentYearMonth.month);
-  const [selectedYear, setSelectedYear] = useState(currentYearMonth.year);
-  const [selectedMonth, setSelectedMonth] = useState(currentYearMonth.month);
-  const [isSearchExpanded, setIsSearchExpanded] = useState(false);
 
-  const yearOptions = useMemo(
-    () =>
-      Array.from({ length: 11 }, (_, index) => currentYearMonth.year - 5 + index),
-    [currentYearMonth.year]
-  );
-
-  const monthOptions = useMemo(
-    () => Array.from({ length: 12 }, (_, index) => index + 1),
-    []
-  );
-
-  const currentMonthDateKeys = getDateKeysDescendingForMonth(viewedYear, viewedMonth);
+  const viewedWeekEnd = getEndOfWeek(viewedWeekStart);
+  const isViewingCurrentWeek = viewedWeekStart.getTime() === currentWeekStart.getTime();
   const isViewingCurrentMonth =
     viewedYear === currentYearMonth.year && viewedMonth === currentYearMonth.month;
-  const visibleDateKeys = isViewingCurrentMonth
-    ? currentMonthDateKeys.filter((dateKey) => {
-        const day = Number(dateKey.slice(-2));
-        return day <= getCurrentDay();
-      })
-    : currentMonthDateKeys;
-  const daysInMonth = currentMonthDateKeys.length;
+  const isViewingFutureMonth = isFutureYearMonth(viewedYear, viewedMonth);
 
-  const moveToPreviousMonth = () => {
-    if (viewedMonth === 1) {
-      const nextYear = viewedYear - 1;
-      setViewedYear(nextYear);
-      setViewedMonth(12);
-      setSelectedYear(nextYear);
-      setSelectedMonth(12);
+  const moveToPreviousWeek = () => {
+    setViewedWeekStart((currentWeek) => shiftDateByDays(currentWeek, -7));
+  };
+
+  const moveToNextWeek = () => {
+    if (isViewingCurrentWeek) {
       return;
     }
 
-    const nextMonth = viewedMonth - 1;
-    setViewedMonth(nextMonth);
-    setSelectedMonth(nextMonth);
+    setViewedWeekStart((currentWeek) => shiftDateByDays(currentWeek, 7));
+  };
+
+  const moveToPreviousMonth = () => {
+    const previousMonth = shiftYearMonth(viewedYear, viewedMonth, -1);
+    setViewedYear(previousMonth.year);
+    setViewedMonth(previousMonth.month);
   };
 
   const moveToNextMonth = () => {
-    if (viewedMonth === 12) {
-      const nextYear = viewedYear + 1;
-      setViewedYear(nextYear);
-      setViewedMonth(1);
-      setSelectedYear(nextYear);
-      setSelectedMonth(1);
+    const nextMonth = shiftYearMonth(viewedYear, viewedMonth, 1);
+
+    if (isFutureYearMonth(nextMonth.year, nextMonth.month)) {
       return;
     }
 
-    const nextMonth = viewedMonth + 1;
-    setViewedMonth(nextMonth);
-    setSelectedMonth(nextMonth);
+    setViewedYear(nextMonth.year);
+    setViewedMonth(nextMonth.month);
   };
 
-  const applyViewedMonth = () => {
-    setViewedYear(selectedYear);
-    setViewedMonth(selectedMonth);
-  };
+  const currentMonthDateKeys = getDateKeysDescendingForMonth(viewedYear, viewedMonth);
+  const visibleDateKeys = isViewingFutureMonth
+    ? []
+    : isViewingCurrentMonth
+      ? currentMonthDateKeys.filter((dateKey) => {
+          const day = Number(dateKey.slice(-2));
+          return day <= getCurrentDay();
+        })
+      : currentMonthDateKeys;
+  const monthGridDateKeys = currentMonthDateKeys.slice().reverse();
+  const daysInMonth = currentMonthDateKeys.length;
 
   const habit1SuccessCount = currentMonthDateKeys.filter(
     (dateKey) => records[dateKey]?.habit1
@@ -103,150 +102,163 @@ export function HistoryScreen({ habitNames, records }: HistoryScreenProps) {
   const habit2SuccessRate = calculateSuccessRate(habit2SuccessCount, daysInMonth);
   const totalSuccessRate = calculateSuccessRate(totalSuccessCount, daysInMonth * 2);
 
+  const habit1Weekly = getWeeklyHabitCount(records, 'habit1', viewedWeekStart, viewedWeekEnd);
+  const habit2Weekly = getWeeklyHabitCount(records, 'habit2', viewedWeekStart, viewedWeekEnd);
+
   return (
     <ScreenContainer>
       <View style={styles.header}>
         <Text style={styles.title}>기록 화면</Text>
-        <Text style={styles.subtitle}>{formatYearMonthLabel(viewedYear, viewedMonth)}</Text>
       </View>
 
-      <View style={styles.monthControlCard}>
-        <Text style={styles.sectionTitle}>월간 기록</Text>
-
-        <View style={styles.navigationRow}>
-          <Pressable onPress={moveToPreviousMonth} style={styles.monthButton}>
-            <Text style={styles.monthButtonText}>이전 달</Text>
-          </Pressable>
-          <Pressable onPress={moveToNextMonth} style={styles.monthButton}>
-            <Text style={styles.monthButtonText}>다음 달</Text>
-          </Pressable>
+      <View style={styles.sectionCard}>
+        <Text style={styles.sectionTitle}>성공률</Text>
+        <View style={styles.summaryRow}>
+          <View style={styles.summaryCard}>
+            <Text style={styles.summaryLabel}>{habitNames[0]} 성공률</Text>
+            <Text style={styles.summaryValue}>{habit1SuccessRate}%</Text>
+          </View>
+          <View style={styles.summaryCard}>
+            <Text style={styles.summaryLabel}>{habitNames[1]} 성공률</Text>
+            <Text style={styles.summaryValue}>{habit2SuccessRate}%</Text>
+          </View>
+          <View style={styles.summaryCard}>
+            <Text style={styles.summaryLabel}>총 성공률</Text>
+            <Text style={styles.summaryValue}>{totalSuccessRate}%</Text>
+          </View>
         </View>
+      </View>
 
-        <Pressable
-          onPress={() => setIsSearchExpanded((current) => !current)}
-          style={styles.searchToggle}
-        >
-          <Text style={styles.searchToggleText}>
-            상세 검색 {isSearchExpanded ? '접기' : '열기'}
-          </Text>
-        </Pressable>
-
-        {isSearchExpanded ? (
-          <View style={styles.searchPanel}>
-            <View style={styles.pickerRow}>
-              <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>연도</Text>
-                <View style={styles.pickerWrapper}>
-                  <Picker
-                    selectedValue={selectedYear}
-                    onValueChange={(value) => setSelectedYear(Number(value))}
-                    style={styles.picker}
-                  >
-                    {yearOptions.map((year) => (
-                      <Picker.Item key={year} label={`${year}년`} value={year} />
-                    ))}
-                  </Picker>
-                </View>
-              </View>
-
-              <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>월</Text>
-                <View style={styles.pickerWrapper}>
-                  <Picker
-                    selectedValue={selectedMonth}
-                    onValueChange={(value) => setSelectedMonth(Number(value))}
-                    style={styles.picker}
-                  >
-                    {monthOptions.map((month) => (
-                      <Picker.Item key={month} label={`${month}월`} value={month} />
-                    ))}
-                  </Picker>
-                </View>
-              </View>
-            </View>
-
-            <Pressable onPress={applyViewedMonth} style={styles.applyButton}>
-              <Text style={styles.applyButtonText}>이동</Text>
+      <View style={styles.sectionCard}>
+        <View style={styles.sectionHeaderRow}>
+          <Text style={styles.sectionTitle}>이번 주</Text>
+          <View style={styles.navigationGroup}>
+            <Pressable onPress={moveToPreviousWeek} style={styles.navButton}>
+              <Text style={styles.navButtonText}>{'<'}</Text>
+            </Pressable>
+            <Text style={styles.navigationLabel}>
+              {formatWeekRangeLabel(viewedWeekStart, viewedWeekEnd)}
+            </Text>
+            <Pressable
+              onPress={moveToNextWeek}
+              style={[styles.navButton, isViewingCurrentWeek && styles.navButtonDisabled]}
+              disabled={isViewingCurrentWeek}
+            >
+              <Text
+                style={[
+                  styles.navButtonText,
+                  isViewingCurrentWeek && styles.navButtonTextDisabled,
+                ]}
+              >
+                {'>'}
+              </Text>
             </Pressable>
           </View>
-        ) : null}
+        </View>
+
+        <View style={styles.trackerSection}>
+          <View style={styles.trackerHeader}>
+            <Text style={styles.trackerLabel}>{habitNames[0]}</Text>
+            <Text style={styles.trackerValue}>
+              {habit1Weekly.successCount === 0
+                ? '시작 전'
+                : `${habit1Weekly.successCount} / ${habit1Weekly.totalDays}일`}
+            </Text>
+          </View>
+          <WeeklySegmentedBar count={habit1Weekly.successCount} />
+        </View>
+
+        <View style={styles.trackerSection}>
+          <View style={styles.trackerHeader}>
+            <Text style={styles.trackerLabel}>{habitNames[1]}</Text>
+            <Text style={styles.trackerValue}>
+              {habit2Weekly.successCount === 0
+                ? '시작 전'
+                : `${habit2Weekly.successCount} / ${habit2Weekly.totalDays}일`}
+            </Text>
+          </View>
+          <WeeklySegmentedBar count={habit2Weekly.successCount} />
+        </View>
       </View>
 
-      <View style={styles.dashboardRow}>
-        <View style={styles.dashboardCard}>
-          <Text style={styles.dashboardLabel}>{habitNames[0]} 성공률</Text>
-          <Text style={styles.dashboardValue}>{habit1SuccessRate}%</Text>
-        </View>
-        <View style={styles.dashboardCard}>
-          <Text style={styles.dashboardLabel}>{habitNames[1]} 성공률</Text>
-          <Text style={styles.dashboardValue}>{habit2SuccessRate}%</Text>
-        </View>
-        <View style={styles.dashboardCard}>
-          <Text style={styles.dashboardLabel}>총 성공률</Text>
-          <Text style={styles.dashboardValue}>{totalSuccessRate}%</Text>
-        </View>
-      </View>
-
-      <View style={styles.visualCard}>
-        <View style={styles.visualSection}>
-          <Text style={styles.visualTitle}>{habitNames[0]} 기록</Text>
-          <View style={styles.grid}>
-            {currentMonthDateKeys
-              .slice()
-              .reverse()
-              .map((dateKey) => (
-                <View
-                  key={`habit1-${dateKey}`}
-                  style={[
-                    styles.gridCell,
-                    records[dateKey]?.habit1 && styles.gridCellFilled,
-                  ]}
-                />
-              ))}
+      <View style={styles.sectionCard}>
+        <View style={styles.sectionHeaderRow}>
+          <Text style={styles.sectionTitle}>이번 달</Text>
+          <View style={styles.navigationGroup}>
+            <Pressable onPress={moveToPreviousMonth} style={styles.navButton}>
+              <Text style={styles.navButtonText}>{'<'}</Text>
+            </Pressable>
+            <Text style={styles.navigationLabel}>{formatYearMonthLabel(viewedYear, viewedMonth)}</Text>
+            <Pressable
+              onPress={moveToNextMonth}
+              style={[styles.navButton, isViewingCurrentMonth && styles.navButtonDisabled]}
+              disabled={isViewingCurrentMonth}
+            >
+              <Text
+                style={[
+                  styles.navButtonText,
+                  isViewingCurrentMonth && styles.navButtonTextDisabled,
+                ]}
+              >
+                {'>'}
+              </Text>
+            </Pressable>
           </View>
         </View>
 
-        <View style={styles.visualSection}>
-          <Text style={styles.visualTitle}>{habitNames[1]} 기록</Text>
-          <View style={styles.grid}>
-            {currentMonthDateKeys
-              .slice()
-              .reverse()
-              .map((dateKey) => (
-                <View
-                  key={`habit2-${dateKey}`}
-                  style={[
-                    styles.gridCell,
-                    records[dateKey]?.habit2 && styles.gridCellFilled,
-                  ]}
-                />
-              ))}
+        <View style={styles.trackerSection}>
+          <View style={styles.trackerHeader}>
+            <Text style={styles.trackerLabel}>{habitNames[0]}</Text>
+            <Text style={styles.trackerValue}>
+              {habit1SuccessCount} / {daysInMonth}일
+            </Text>
           </View>
+          <MonthRecordGrid dateKeys={monthGridDateKeys} records={records} habitKey="habit1" />
+        </View>
+
+        <View style={styles.trackerSection}>
+          <View style={styles.trackerHeader}>
+            <Text style={styles.trackerLabel}>{habitNames[1]}</Text>
+            <Text style={styles.trackerValue}>
+              {habit2SuccessCount} / {daysInMonth}일
+            </Text>
+          </View>
+          <MonthRecordGrid dateKeys={monthGridDateKeys} records={records} habitKey="habit2" />
         </View>
       </View>
 
-      <View style={styles.tableCard}>
-        <View style={[styles.row, styles.headerRow]}>
-          <Text style={[styles.cell, styles.dateHeader]}>날짜</Text>
-          <Text style={styles.cell}>{habitNames[0]}</Text>
-          <Text style={styles.cell}>{habitNames[1]}</Text>
-        </View>
+      <View style={styles.sectionCard}>
+        <Text style={styles.sectionTitle}>날짜별 기록</Text>
 
-        {visibleDateKeys.map((dateKey) => {
-          const dailyRecord = records[dateKey];
-
-          return (
-            <View key={dateKey} style={styles.row}>
-              <Text style={[styles.cell, styles.dateCell]}>{formatMonthDayLabel(dateKey)}</Text>
-              <View style={styles.statusCell}>
-                <StatusDot success={Boolean(dailyRecord?.habit1)} />
-              </View>
-              <View style={styles.statusCell}>
-                <StatusDot success={Boolean(dailyRecord?.habit2)} />
-              </View>
+        {visibleDateKeys.length === 0 ? (
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyStateText}>기록이 없습니다.</Text>
+          </View>
+        ) : (
+          <View style={styles.tableCard}>
+            <View style={[styles.row, styles.headerRow]}>
+              <Text style={[styles.cell, styles.dateHeader]}>날짜</Text>
+              <Text style={styles.cell}>{habitNames[0]}</Text>
+              <Text style={styles.cell}>{habitNames[1]}</Text>
             </View>
-          );
-        })}
+
+            {visibleDateKeys.map((dateKey) => {
+              const dailyRecord = records[dateKey];
+
+              return (
+                <View key={dateKey} style={styles.row}>
+                  <Text style={[styles.cell, styles.dateCell]}>{formatMonthDayLabel(dateKey)}</Text>
+                  <View style={styles.statusCell}>
+                    <StatusDot success={Boolean(dailyRecord?.habit1)} />
+                  </View>
+                  <View style={styles.statusCell}>
+                    <StatusDot success={Boolean(dailyRecord?.habit2)} />
+                  </View>
+                </View>
+              );
+            })}
+          </View>
+        )}
       </View>
     </ScreenContainer>
   );
@@ -262,148 +274,99 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#1e1e1c',
   },
-  subtitle: {
-    fontSize: 16,
-    lineHeight: 24,
-    color: '#5e5e58',
-  },
-  monthControlCard: {
-    borderRadius: 20,
+  sectionCard: {
+    borderRadius: 22,
     borderWidth: 1,
     borderColor: '#e4e4de',
     backgroundColor: '#ffffff',
     padding: 18,
-    gap: 14,
+    gap: 16,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
     color: '#1e1e1c',
   },
-  navigationRow: {
+  sectionHeaderRow: {
+    gap: 14,
+  },
+  summaryRow: {
     flexDirection: 'row',
     gap: 10,
   },
-  monthButton: {
-    flex: 1,
-    borderRadius: 14,
-    backgroundColor: '#f5f5f3',
-    paddingVertical: 12,
-  },
-  monthButtonText: {
-    textAlign: 'center',
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#2b2b28',
-  },
-  searchToggle: {
-    alignSelf: 'flex-start',
-    paddingVertical: 4,
-  },
-  searchToggleText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#5f5f59',
-  },
-  searchPanel: {
-    gap: 12,
-  },
-  pickerRow: {
-    flexDirection: 'row',
-    gap: 10,
-  },
-  inputGroup: {
-    flex: 1,
-    gap: 8,
-  },
-  inputLabel: {
-    fontSize: 14,
-    color: '#5f5f59',
-  },
-  pickerWrapper: {
-    borderWidth: 1,
-    borderColor: '#d9d9d2',
-    borderRadius: 14,
-    backgroundColor: '#fbfbf9',
-    overflow: 'hidden',
-  },
-  picker: {
-    width: '100%',
-    color: '#1e1e1c',
-  },
-  applyButton: {
-    alignSelf: 'flex-start',
-    borderRadius: 14,
-    backgroundColor: '#1e1e1c',
-    paddingHorizontal: 18,
-    paddingVertical: 13,
-  },
-  applyButtonText: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#ffffff',
-  },
-  dashboardRow: {
-    flexDirection: 'row',
-    gap: 10,
-  },
-  dashboardCard: {
+  summaryCard: {
     flex: 1,
     borderRadius: 18,
-    borderWidth: 1,
-    borderColor: '#e4e4de',
-    backgroundColor: '#ffffff',
+    backgroundColor: '#f8f8f5',
     paddingHorizontal: 14,
     paddingVertical: 16,
     gap: 10,
   },
-  dashboardLabel: {
+  summaryLabel: {
     fontSize: 14,
     lineHeight: 20,
     color: '#5f5f59',
   },
-  dashboardValue: {
+  summaryValue: {
     fontSize: 28,
     fontWeight: '700',
     color: '#1e1e1c',
   },
-  visualCard: {
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#e4e4de',
-    backgroundColor: '#ffffff',
-    padding: 18,
-    gap: 18,
+  navigationGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 10,
   },
-  visualSection: {
-    gap: 12,
+  navButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#f5f5f3',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  visualTitle: {
+  navButtonDisabled: {
+    backgroundColor: '#f0f0ed',
+  },
+  navButtonText: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#2b2b28',
+  },
+  navButtonTextDisabled: {
+    color: '#b3b3ad',
+  },
+  navigationLabel: {
+    flex: 1,
+    textAlign: 'center',
     fontSize: 16,
     fontWeight: '600',
     color: '#2b2b28',
   },
-  grid: {
+  trackerSection: {
+    gap: 10,
+  },
+  trackerHeader: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 6,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: 12,
   },
-  gridCell: {
-    width: 16,
-    height: 16,
-    borderRadius: 4,
-    borderWidth: 1,
-    borderColor: '#dbdbd4',
-    backgroundColor: '#ffffff',
+  trackerLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#2b2b28',
   },
-  gridCellFilled: {
-    borderColor: '#1f7a4d',
-    backgroundColor: '#1f7a4d',
+  trackerValue: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#4f4f4a',
   },
   tableCard: {
-    borderRadius: 20,
+    borderRadius: 18,
     borderWidth: 1,
-    borderColor: '#e4e4de',
+    borderColor: '#e9e9e3',
     backgroundColor: '#ffffff',
     overflow: 'hidden',
   },
@@ -439,5 +402,15 @@ const styles = StyleSheet.create({
     flex: 1.5,
     textAlign: 'left',
     color: '#4f4f4a',
+  },
+  emptyState: {
+    borderRadius: 18,
+    backgroundColor: '#f8f8f5',
+    paddingVertical: 24,
+    alignItems: 'center',
+  },
+  emptyStateText: {
+    fontSize: 15,
+    color: '#6a6a64',
   },
 });

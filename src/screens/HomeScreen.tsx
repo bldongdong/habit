@@ -36,12 +36,12 @@ export function HomeScreen({
           <View style={styles.streakSection}>
             {shouldShowHabit1Streak ? (
               <Text style={styles.streakText}>
-                {habitNames[0]} 🔥 {habit1Streak}
+                {habitNames[0]} 🔥 {habit1Streak} 일 연속 성공 중!
               </Text>
             ) : null}
             {shouldShowHabit2Streak ? (
               <Text style={styles.streakText}>
-                {habitNames[1]} 🔥 {habit2Streak}
+                {habitNames[1]} 🔥 {habit2Streak} 일 연속 성공 중!
               </Text>
             ) : null}
           </View>

@@ -1,3 +1,11 @@
+export function createDateKey(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+
+  return `${year}-${month}-${day}`;
+}
+
 export function formatTodayLabel() {
   return new Intl.DateTimeFormat('ko-KR', {
     month: 'long',
@@ -7,12 +15,7 @@ export function formatTodayLabel() {
 }
 
 export function getTodayKey() {
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, '0');
-  const day = String(today.getDate()).padStart(2, '0');
-
-  return `${year}-${month}-${day}`;
+  return createDateKey(new Date());
 }
 
 export function getCurrentYearMonth() {
@@ -37,6 +40,29 @@ export function formatYearMonthLabel(year: number, month: number) {
   }).format(date);
 }
 
+export function formatMonthDayLabel(dateKey: string) {
+  const [yearText, monthText, dayText] = dateKey.split('-');
+  const year = Number(yearText);
+  const month = Number(monthText);
+  const day = Number(dayText);
+  const date = new Date(year, month - 1, day);
+
+  return new Intl.DateTimeFormat('ko-KR', {
+    month: 'numeric',
+    day: 'numeric',
+    weekday: 'short',
+  }).format(date);
+}
+
+export function formatWeekRangeLabel(startDate: Date, endDate: Date) {
+  const startMonth = startDate.getMonth() + 1;
+  const startDay = startDate.getDate();
+  const endMonth = endDate.getMonth() + 1;
+  const endDay = endDate.getDate();
+
+  return `${startMonth}월 ${startDay}일 - ${endMonth}월 ${endDay}일`;
+}
+
 export function getDaysInMonth(year: number, month: number) {
   return new Date(year, month, 0).getDate();
 }
@@ -54,16 +80,54 @@ export function getDateKeysDescendingForMonth(year: number, month: number) {
   return dateKeys;
 }
 
-export function formatMonthDayLabel(dateKey: string) {
-  const [yearText, monthText, dayText] = dateKey.split('-');
-  const year = Number(yearText);
-  const month = Number(monthText);
-  const day = Number(dayText);
-  const date = new Date(year, month - 1, day);
+export function shiftYearMonth(year: number, month: number, monthOffset: number) {
+  const date = new Date(year, month - 1 + monthOffset, 1);
 
-  return new Intl.DateTimeFormat('ko-KR', {
-    month: 'numeric',
-    day: 'numeric',
-    weekday: 'short',
-  }).format(date);
+  return {
+    year: date.getFullYear(),
+    month: date.getMonth() + 1,
+  };
+}
+
+export function isFutureYearMonth(year: number, month: number) {
+  const currentYearMonth = getCurrentYearMonth();
+
+  if (year > currentYearMonth.year) {
+    return true;
+  }
+
+  if (year === currentYearMonth.year && month > currentYearMonth.month) {
+    return true;
+  }
+
+  return false;
+}
+
+export function shiftDateByDays(date: Date, dayOffset: number) {
+  const nextDate = new Date(date);
+  nextDate.setDate(nextDate.getDate() + dayOffset);
+  return nextDate;
+}
+
+export function getStartOfWeek(date: Date) {
+  const dayOfWeek = date.getDay();
+  const daysSinceMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+  return shiftDateByDays(date, -daysSinceMonday);
+}
+
+export function getEndOfWeek(date: Date) {
+  const startOfWeek = getStartOfWeek(date);
+  return shiftDateByDays(startOfWeek, 6);
+}
+
+export function getDateKeysForRange(startDate: Date, endDate: Date) {
+  const dateKeys: string[] = [];
+  const currentDate = new Date(startDate);
+
+  while (currentDate <= endDate) {
+    dateKeys.push(createDateKey(currentDate));
+    currentDate.setDate(currentDate.getDate() + 1);
+  }
+
+  return dateKeys;
 }
