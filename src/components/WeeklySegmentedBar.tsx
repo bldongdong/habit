@@ -5,6 +5,14 @@ type WeeklySegmentedBarProps = {
 };
 
 export function WeeklySegmentedBar({ count }: WeeklySegmentedBarProps) {
+  let fillColor = '#9e9e9e';
+
+  if (count >= 5) {
+    fillColor = '#4caf50';
+  } else if (count >= 3) {
+    fillColor = '#ff9800';
+  }
+  
   return (
     <View style={styles.wrapper}>
       {Array.from({ length: 7 }, (_, index) => {
@@ -13,7 +21,12 @@ export function WeeklySegmentedBar({ count }: WeeklySegmentedBarProps) {
         return (
           <View
             key={index}
-            style={[styles.segment, isFilled ? styles.segmentFilled : styles.segmentEmpty]}
+            style={[
+              styles.segment,
+              isFilled
+               ? { backgroundColor:fillColor}
+               : styles.segmentEmpty
+              ]}
           />
         );
       })}

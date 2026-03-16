@@ -7,7 +7,7 @@ import { DEFAULT_APP_DATA, EMPTY_DAILY_RECORD } from './src/constants/habits';
 import { HistoryScreen } from './src/screens/HistoryScreen';
 import { HomeScreen } from './src/screens/HomeScreen';
 import { SettingsScreen } from './src/screens/SettingsScreen';
-import type { AppData, AppTab, DailyRecord, HabitKey, HabitNames } from './src/types/habit';
+import type { AppData, AppTab, DailyRecord, HabitKey, Habits } from './src/types/habit';
 import { getTodayKey } from './src/utils/date';
 import { loadAppData, saveAppData } from './src/utils/storage';
 import { getHabitStreak } from './src/utils/streak';
@@ -55,10 +55,10 @@ export default function App() {
     });
   };
 
-  const updateHabitNames = (habitNames: HabitNames) => {
+  const updateHabits = (habits: Habits) => {
     setAppData((currentAppData) => ({
       ...currentAppData,
-      habitNames,
+      habits,
     }));
   };
 
@@ -68,21 +68,16 @@ export default function App() {
 
   const renderScreen = () => {
     if (activeTab === 'history') {
-      return <HistoryScreen habitNames={appData.habitNames} records={appData.records} />;
+      return <HistoryScreen habits={appData.habits} records={appData.records} />;
     }
 
     if (activeTab === 'settings') {
-      return (
-        <SettingsScreen
-          habitNames={appData.habitNames}
-          onSaveHabitNames={updateHabitNames}
-        />
-      );
+      return <SettingsScreen habits={appData.habits} onSaveHabits={updateHabits} />;
     }
 
     return (
       <HomeScreen
-        habitNames={appData.habitNames}
+        habits={appData.habits}
         todayRecord={todayRecord}
         habit1Streak={habit1Streak}
         habit2Streak={habit2Streak}

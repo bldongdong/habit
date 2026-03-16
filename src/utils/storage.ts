@@ -1,9 +1,25 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { DEFAULT_APP_DATA } from '../constants/habits';
-import type { AppData } from '../types/habit';
+import type { AppData, HabitDetail } from '../types/habit';
 
 const STORAGE_KEY = 'two-check-app-data';
+
+type LegacyAppData = Partial<AppData> & {
+  habitNames?: [string?, string?];
+};
+
+function normalizeHabit(
+  storedHabit: Partial<HabitDetail> | undefined,
+  fallbackHabit: HabitDetail,
+  legacyTitle?: string
+) {
+  return {
+    title: storedHabit?.title?.trim() || legacyTitle?.trim() || fallbackHabit.title,
+    description: storedHabit?.description?.trim() || fallbackHabit.description,
+    weeklyTarget: storedHabit?.weeklyTarget ?? fallbackHabit.weeklyTarget,
+  };
+}
 
 export async function loadAppData() {
   const storedValue = await AsyncStorage.getItem(STORAGE_KEY);
@@ -13,12 +29,20 @@ export async function loadAppData() {
   }
 
   try {
-    const parsedValue = JSON.parse(storedValue) as Partial<AppData>;
+    const parsedValue = JSON.parse(storedValue) as LegacyAppData;
 
     return {
-      habitNames: [
-        parsedValue.habitNames?.[0] ?? DEFAULT_APP_DATA.habitNames[0],
-        parsedValue.habitNames?.[1] ?? DEFAULT_APP_DATA.habitNames[1],
+      habits: [
+        normalizeHabit(
+          parsedValue.habits?.[0],
+          DEFAULT_APP_DATA.habits[0],
+          parsedValue.habitNames?.[0]
+        ),
+        normalizeHabit(
+          parsedValue.habits?.[1],
+          DEFAULT_APP_DATA.habits[1],
+          parsedValue.habitNames?.[1]
+        ),
       ],
       records: parsedValue.records ?? {},
     } satisfies AppData;

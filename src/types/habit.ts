@@ -1,6 +1,12 @@
 export type AppTab = 'home' | 'history' | 'settings';
 
-export type HabitNames = [string, string];
+export type HabitDetail = {
+  title: string;
+  description: string;
+  weeklyTarget: number;
+};
+
+export type Habits = [HabitDetail, HabitDetail];
 
 export type HabitKey = 'habit1' | 'habit2';
 
@@ -12,6 +18,6 @@ export type DailyRecord = {
 export type RecordsByDate = Record<string, DailyRecord>;
 
 export type AppData = {
-  habitNames: HabitNames;
+  habits: Habits;
   records: RecordsByDate;
 };

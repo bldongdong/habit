@@ -5,7 +5,7 @@ import { MonthRecordGrid } from '../components/MonthRecordGrid';
 import { ScreenContainer } from '../components/ScreenContainer';
 import { StatusDot } from '../components/StatusDot';
 import { WeeklySegmentedBar } from '../components/WeeklySegmentedBar';
-import type { HabitNames, RecordsByDate } from '../types/habit';
+import type { Habits, RecordsByDate } from '../types/habit';
 import {
   formatMonthDayLabel,
   formatWeekRangeLabel,
@@ -22,11 +22,11 @@ import {
 import { getWeeklyHabitCount } from '../utils/weekly';
 
 type HistoryScreenProps = {
-  habitNames: HabitNames;
+  habits: Habits;
   records: RecordsByDate;
 };
 
-export function HistoryScreen({ habitNames, records }: HistoryScreenProps) {
+export function HistoryScreen({ habits, records }: HistoryScreenProps) {
   const currentDate = useMemo(() => new Date(), []);
   const currentYearMonth = getCurrentYearMonth();
   const currentWeekStart = useMemo(() => getStartOfWeek(currentDate), [currentDate]);
@@ -88,7 +88,6 @@ export function HistoryScreen({ habitNames, records }: HistoryScreenProps) {
   const habit2SuccessCount = currentMonthDateKeys.filter(
     (dateKey) => records[dateKey]?.habit2
   ).length;
-  const totalSuccessCount = habit1SuccessCount + habit2SuccessCount;
 
   const calculateSuccessRate = (successCount: number, totalCount: number) => {
     if (totalCount === 0) {
@@ -100,7 +99,10 @@ export function HistoryScreen({ habitNames, records }: HistoryScreenProps) {
 
   const habit1SuccessRate = calculateSuccessRate(habit1SuccessCount, daysInMonth);
   const habit2SuccessRate = calculateSuccessRate(habit2SuccessCount, daysInMonth);
-  const totalSuccessRate = calculateSuccessRate(totalSuccessCount, daysInMonth * 2);
+  const totalSuccessRate = calculateSuccessRate(
+    habit1SuccessCount + habit2SuccessCount,
+    daysInMonth * 2
+  );
 
   const habit1Weekly = getWeeklyHabitCount(records, 'habit1', viewedWeekStart, viewedWeekEnd);
   const habit2Weekly = getWeeklyHabitCount(records, 'habit2', viewedWeekStart, viewedWeekEnd);
@@ -111,27 +113,58 @@ export function HistoryScreen({ habitNames, records }: HistoryScreenProps) {
         <Text style={styles.title}>기록 화면</Text>
       </View>
 
-      <View style={styles.sectionCard}>
+      <View style={styles.successCard}>
         <Text style={styles.sectionTitle}>성공률</Text>
-        <View style={styles.summaryRow}>
-          <View style={styles.summaryCard}>
-            <Text style={styles.summaryLabel}>{habitNames[0]} 성공률</Text>
-            <Text style={styles.summaryValue}>{habit1SuccessRate}%</Text>
+
+        <View style={styles.summaryBlock}>
+          <Text style={styles.summaryBlockTitle}>이번 주 목표 달성</Text>
+          <View style={styles.weeklyGoalRow}>
+            <View style={styles.weeklyGoalCard}>
+              <Text style={styles.weeklyGoalTitle}>{habits[0].title}</Text>
+              <Text style={styles.weeklyGoalValue}>
+                {habit1Weekly.successCount} / 7일
+              </Text>
+              <Text style={styles.weeklyGoalCaption}>
+                목표 {habit1Weekly.successCount} / {habits[0].weeklyTarget}회
+              </Text>
+            </View>
+
+            <View style={styles.weeklyGoalCard}>
+              <Text style={styles.weeklyGoalTitle}>{habits[1].title}</Text>
+              <Text style={styles.weeklyGoalValue}>
+                {habit2Weekly.successCount} / 7일
+              </Text>
+              <Text style={styles.weeklyGoalCaption}>
+                목표 {habit2Weekly.successCount} / {habits[1].weeklyTarget}회
+              </Text>
+            </View>
           </View>
-          <View style={styles.summaryCard}>
-            <Text style={styles.summaryLabel}>{habitNames[1]} 성공률</Text>
-            <Text style={styles.summaryValue}>{habit2SuccessRate}%</Text>
-          </View>
-          <View style={styles.summaryCard}>
-            <Text style={styles.summaryLabel}>총 성공률</Text>
-            <Text style={styles.summaryValue}>{totalSuccessRate}%</Text>
+        </View>
+
+        <View style={styles.summaryDivider} />
+
+        <View style={styles.summaryBlock}>
+          <Text style={styles.summaryBlockTitle}>이번 달 진행률</Text>
+          <View style={styles.progressCardsRow}>
+            <View style={styles.progressCard}>
+              <Text style={styles.progressLabel}>{habits[0].title} 진행률</Text>
+              <Text style={styles.progressValue}>{habit1SuccessRate}%</Text>
+            </View>
+            <View style={styles.progressCard}>
+              <Text style={styles.progressLabel}>{habits[1].title} 진행률</Text>
+              <Text style={styles.progressValue}>{habit2SuccessRate}%</Text>
+            </View>
+            <View style={styles.progressCard}>
+              <Text style={styles.progressLabel}>총 진행률</Text>
+              <Text style={styles.progressValue}>{totalSuccessRate}%</Text>
+            </View>
           </View>
         </View>
       </View>
 
       <View style={styles.sectionCard}>
         <View style={styles.sectionHeaderRow}>
-          <Text style={styles.sectionTitle}>이번 주</Text>
+          <Text style={styles.sectionTitle}>이번 주 진행</Text>
           <View style={styles.navigationGroup}>
             <Pressable onPress={moveToPreviousWeek} style={styles.navButton}>
               <Text style={styles.navButtonText}>{'<'}</Text>
@@ -158,7 +191,7 @@ export function HistoryScreen({ habitNames, records }: HistoryScreenProps) {
 
         <View style={styles.trackerSection}>
           <View style={styles.trackerHeader}>
-            <Text style={styles.trackerLabel}>{habitNames[0]}</Text>
+            <Text style={styles.trackerLabel}>{habits[0].title}</Text>
             <Text style={styles.trackerValue}>
               {habit1Weekly.successCount === 0
                 ? '시작 전'
@@ -170,7 +203,7 @@ export function HistoryScreen({ habitNames, records }: HistoryScreenProps) {
 
         <View style={styles.trackerSection}>
           <View style={styles.trackerHeader}>
-            <Text style={styles.trackerLabel}>{habitNames[1]}</Text>
+            <Text style={styles.trackerLabel}>{habits[1].title}</Text>
             <Text style={styles.trackerValue}>
               {habit2Weekly.successCount === 0
                 ? '시작 전'
@@ -183,7 +216,7 @@ export function HistoryScreen({ habitNames, records }: HistoryScreenProps) {
 
       <View style={styles.sectionCard}>
         <View style={styles.sectionHeaderRow}>
-          <Text style={styles.sectionTitle}>이번 달</Text>
+          <Text style={styles.sectionTitle}>이번 달 진행</Text>
           <View style={styles.navigationGroup}>
             <Pressable onPress={moveToPreviousMonth} style={styles.navButton}>
               <Text style={styles.navButtonText}>{'<'}</Text>
@@ -208,7 +241,7 @@ export function HistoryScreen({ habitNames, records }: HistoryScreenProps) {
 
         <View style={styles.trackerSection}>
           <View style={styles.trackerHeader}>
-            <Text style={styles.trackerLabel}>{habitNames[0]}</Text>
+            <Text style={styles.trackerLabel}>{habits[0].title}</Text>
             <Text style={styles.trackerValue}>
               {habit1SuccessCount} / {daysInMonth}일
             </Text>
@@ -218,7 +251,7 @@ export function HistoryScreen({ habitNames, records }: HistoryScreenProps) {
 
         <View style={styles.trackerSection}>
           <View style={styles.trackerHeader}>
-            <Text style={styles.trackerLabel}>{habitNames[1]}</Text>
+            <Text style={styles.trackerLabel}>{habits[1].title}</Text>
             <Text style={styles.trackerValue}>
               {habit2SuccessCount} / {daysInMonth}일
             </Text>
@@ -238,8 +271,8 @@ export function HistoryScreen({ habitNames, records }: HistoryScreenProps) {
           <View style={styles.tableCard}>
             <View style={[styles.row, styles.headerRow]}>
               <Text style={[styles.cell, styles.dateHeader]}>날짜</Text>
-              <Text style={styles.cell}>{habitNames[0]}</Text>
-              <Text style={styles.cell}>{habitNames[1]}</Text>
+              <Text style={styles.cell}>{habits[0].title}</Text>
+              <Text style={styles.cell}>{habits[1].title}</Text>
             </View>
 
             {visibleDateKeys.map((dateKey) => {
@@ -274,6 +307,14 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#1e1e1c',
   },
+  successCard: {
+    borderRadius: 22,
+    borderWidth: 1,
+    borderColor: '#e4e4de',
+    backgroundColor: '#ffffff',
+    padding: 18,
+    gap: 18,
+  },
   sectionCard: {
     borderRadius: 22,
     borderWidth: 1,
@@ -287,14 +328,48 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#1e1e1c',
   },
-  sectionHeaderRow: {
+  summaryBlock: {
     gap: 14,
   },
-  summaryRow: {
+  summaryBlockTitle: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#5f5f59',
+  },
+  weeklyGoalRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  weeklyGoalCard: {
+    flex: 1,
+    borderRadius: 18,
+    backgroundColor: '#f8f8f5',
+    padding: 16,
+    gap: 8,
+  },
+  weeklyGoalTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#2b2b28',
+  },
+  weeklyGoalValue: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#1e1e1c',
+  },
+  weeklyGoalCaption: {
+    fontSize: 14,
+    color: '#5f5f59',
+  },
+  summaryDivider: {
+    height: 1,
+    backgroundColor: '#ecece6',
+  },
+  progressCardsRow: {
     flexDirection: 'row',
     gap: 10,
   },
-  summaryCard: {
+  progressCard: {
     flex: 1,
     borderRadius: 18,
     backgroundColor: '#f8f8f5',
@@ -302,15 +377,18 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     gap: 10,
   },
-  summaryLabel: {
+  progressLabel: {
     fontSize: 14,
     lineHeight: 20,
     color: '#5f5f59',
   },
-  summaryValue: {
-    fontSize: 28,
+  progressValue: {
+    fontSize: 30,
     fontWeight: '700',
     color: '#1e1e1c',
+  },
+  sectionHeaderRow: {
+    gap: 14,
   },
   navigationGroup: {
     flexDirection: 'row',

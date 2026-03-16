@@ -1,22 +1,23 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 type HabitCardProps = {
-  habitName: string;
+  title: string;
+  description: string;
   isChecked: boolean;
   onToggle: () => void;
 };
 
-export function HabitCard({ habitName, isChecked, onToggle }: HabitCardProps) {
+export function HabitCard({ title, description, isChecked, onToggle }: HabitCardProps) {
   return (
     <View style={[styles.card, isChecked && styles.cardChecked]}>
       <View style={styles.textBlock}>
-        <Text style={styles.label}>오늘의 습관</Text>
-        <Text style={styles.name}>{habitName}</Text>
+        <Text style={styles.title}>{title}</Text>
+        {description ? <Text style={styles.description}>{description}</Text> : null}
       </View>
 
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={`${habitName} 체크 버튼`}
+        accessibilityLabel={`${title} 체크 버튼`}
         onPress={onToggle}
         style={[styles.button, isChecked && styles.buttonChecked]}
       >
@@ -35,7 +36,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#e4e4de',
     padding: 20,
-    gap: 16,
+    gap: 18,
     shadowColor: '#1c1c1c',
     shadowOpacity: 0.05,
     shadowRadius: 12,
@@ -50,16 +51,17 @@ const styles = StyleSheet.create({
     backgroundColor: '#f4fbf6',
   },
   textBlock: {
-    gap: 6,
+    gap: 8,
   },
-  label: {
-    fontSize: 14,
-    color: '#70706c',
-  },
-  name: {
+  title: {
     fontSize: 28,
     fontWeight: '700',
     color: '#1e1e1c',
+  },
+  description: {
+    fontSize: 16,
+    lineHeight: 23,
+    color: '#5f5f59',
   },
   button: {
     alignSelf: 'flex-start',

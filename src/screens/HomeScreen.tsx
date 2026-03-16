@@ -2,11 +2,11 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { HabitCard } from '../components/HabitCard';
 import { ScreenContainer } from '../components/ScreenContainer';
-import type { DailyRecord, HabitKey, HabitNames } from '../types/habit';
+import type { DailyRecord, HabitKey, Habits } from '../types/habit';
 import { formatTodayLabel } from '../utils/date';
 
 type HomeScreenProps = {
-  habitNames: HabitNames;
+  habits: Habits;
   todayRecord: DailyRecord;
   habit1Streak: number;
   habit2Streak: number;
@@ -15,7 +15,7 @@ type HomeScreenProps = {
 };
 
 export function HomeScreen({
-  habitNames,
+  habits,
   todayRecord,
   habit1Streak,
   habit2Streak,
@@ -36,12 +36,12 @@ export function HomeScreen({
           <View style={styles.streakSection}>
             {shouldShowHabit1Streak ? (
               <Text style={styles.streakText}>
-                {habitNames[0]} 🔥 {habit1Streak} 일 연속 성공 중!
+                {habits[0].title} 🔥 {habit1Streak} 일 연속 성공 중!
               </Text>
             ) : null}
             {shouldShowHabit2Streak ? (
               <Text style={styles.streakText}>
-                {habitNames[1]} 🔥 {habit2Streak} 일 연속 성공 중!
+                {habits[1].title} 🔥 {habit2Streak} 일 연속 성공 중!
               </Text>
             ) : null}
           </View>
@@ -50,12 +50,14 @@ export function HomeScreen({
 
       <View style={styles.cardList}>
         <HabitCard
-          habitName={habitNames[0]}
+          title={habits[0].title}
+          description={habits[0].description}
           isChecked={todayRecord.habit1}
           onToggle={() => onToggleHabit('habit1')}
         />
         <HabitCard
-          habitName={habitNames[1]}
+          title={habits[1].title}
+          description={habits[1].description}
           isChecked={todayRecord.habit2}
           onToggle={() => onToggleHabit('habit2')}
         />

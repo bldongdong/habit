@@ -12,12 +12,10 @@ export function MonthRecordGrid({ dateKeys, records, habitKey }: MonthRecordGrid
   return (
     <View style={styles.grid}>
       {dateKeys.map((dateKey) => {
-        const dayNumber = Number(dateKey.slice(-2));
         const isChecked = Boolean(records[dateKey]?.[habitKey]);
 
         return (
           <View key={`${habitKey}-${dateKey}`} style={[styles.cell, isChecked && styles.cellFilled]}>
-            <Text style={[styles.dayText, isChecked && styles.dayTextFilled]}>{dayNumber}</Text>
           </View>
         );
       })}
@@ -29,12 +27,12 @@ const styles = StyleSheet.create({
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 6,
+    gap: 3,
   },
   cell: {
-    width: 28,
-    height: 28,
-    borderRadius: 8,
+    width: 15,
+    height: 15,
+    borderRadius: 3,
     borderWidth: 1,
     borderColor: '#d8d8d1',
     backgroundColor: '#fbfbf9',
