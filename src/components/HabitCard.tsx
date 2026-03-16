@@ -11,8 +11,8 @@ type HabitCardProps = {
 
 export function HabitCard({ title, description, isChecked, onToggle }: HabitCardProps) {
   const scaleValue = useRef(new Animated.Value(1)).current;
-  const stampScaleValue = useRef(new Animated.Value(0.6)).current;
-  const stampOpacityValue = useRef(new Animated.Value(0)).current;
+  const stampScaleValue = useRef(new Animated.Value(isChecked ? 1 : 0.6)).current;
+  const stampOpacityValue = useRef(new Animated.Value(isChecked ? 1 : 0)).current;
   const previousCheckedRef = useRef(isChecked);
 
   useEffect(() => {
@@ -57,6 +57,9 @@ export function HabitCard({ title, description, isChecked, onToggle }: HabitCard
           }),
         ]),
       ]).start();
+    } else if (wasChecked && isChecked) {
+      stampScaleValue.setValue(1);
+      stampOpacityValue.setValue(1);
     } else if (!isChecked) {
       stampScaleValue.setValue(0.6);
       stampOpacityValue.setValue(0);
@@ -78,21 +81,22 @@ export function HabitCard({ title, description, isChecked, onToggle }: HabitCard
         { transform: [{ scale: scaleValue }] },
       ]}
     >
-      {isChecked ? (
-        <Animated.View
-          style={[
-            styles.stampWrapper,
-            {
-              opacity: stampOpacityValue,
-              transform: [{ rotate: '-18deg' }, { scale: stampScaleValue }],
-            },
-          ]}
-        >
-          <Text style={styles.stampText}>COMPLETE</Text>
-        </Animated.View>
-      ) : null}
-
       <View style={styles.textBlock}>
+        {isChecked ? (
+          <Animated.View
+            pointerEvents="none"
+            style={[
+              styles.stampWrapper,
+              {
+                opacity: stampOpacityValue,
+                transform: [{ rotate: '-14deg' }, { scale: stampScaleValue }],
+              },
+            ]}
+          >
+            <Text style={styles.stampText}>COMPLETE</Text>
+          </Animated.View>
+        ) : null}
+
         <Text style={styles.title}>{title}</Text>
         {description ? <Text style={styles.description}>{description}</Text> : null}
       </View>
@@ -136,14 +140,14 @@ const styles = StyleSheet.create({
   },
   stampWrapper: {
     position: 'absolute',
-    top: 20,
-    right: -2,
+    top: 30,
+    right: 0,
     paddingHorizontal: 14,
     paddingVertical: 7,
     borderWidth: 2,
-    borderColor: '#167246',
+    borderColor: '#d32f2f',
     borderRadius: 10,
-    backgroundColor: 'rgba(255, 255, 255, 0.88)',
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
     shadowColor: '#0f4f30',
     shadowOpacity: 0.12,
     shadowRadius: 6,
@@ -157,11 +161,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '800',
     letterSpacing: 1,
-    color: '#167246',
+    color: '#d32f2f',
   },
   textBlock: {
+    position: 'relative',
     gap: 8,
-    paddingRight: 90,
+    minHeight: 88,
+    paddingRight: 80,
   },
   title: {
     fontSize: 28,
@@ -174,7 +180,7 @@ const styles = StyleSheet.create({
     color: '#5f5f59',
   },
   button: {
-    alignSelf: 'flex-start',
+    alignSelf: 'flex-end',
     minWidth: 108,
     borderRadius: 999,
     backgroundColor: '#1e1e1c',
