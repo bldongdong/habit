@@ -22,7 +22,7 @@ export function HabitCard({ title, description, isChecked, onToggle }: HabitCard
         style={[styles.button, isChecked && styles.buttonChecked]}
       >
         <Text style={[styles.buttonText, isChecked && styles.buttonTextChecked]}>
-          {isChecked ? '완료' : '체크'}
+          {isChecked ? '완료' : '체크1'}
         </Text>
       </Pressable>
     </View>

@@ -122,20 +122,16 @@ export function HistoryScreen({ habits, records }: HistoryScreenProps) {
             <View style={styles.weeklyGoalCard}>
               <Text style={styles.weeklyGoalTitle}>{habits[0].title}</Text>
               <Text style={styles.weeklyGoalValue}>
-                {habit1Weekly.successCount} / 7일
-              </Text>
-              <Text style={styles.weeklyGoalCaption}>
-                목표 {habit1Weekly.successCount} / {habits[0].weeklyTarget}회
+                  <Text style={styles.weeklyGoalValueMain}>{habit1Weekly.successCount} 회</Text>
+                  <Text style={styles.weeklyGoalValueSub}> / {habits[0].weeklyTarget}회 목표</Text>
               </Text>
             </View>
 
             <View style={styles.weeklyGoalCard}>
               <Text style={styles.weeklyGoalTitle}>{habits[1].title}</Text>
               <Text style={styles.weeklyGoalValue}>
-                {habit2Weekly.successCount} / 7일
-              </Text>
-              <Text style={styles.weeklyGoalCaption}>
-                목표 {habit2Weekly.successCount} / {habits[1].weeklyTarget}회
+                <Text style={styles.weeklyGoalValueMain}>{habit2Weekly.successCount} 회</Text>
+                <Text style={styles.weeklyGoalValueSub}> / {habits[1].weeklyTarget}회 목표</Text>
               </Text>
             </View>
           </View>
@@ -490,5 +486,15 @@ const styles = StyleSheet.create({
   emptyStateText: {
     fontSize: 15,
     color: '#6a6a64',
+  },
+  weeklyGoalValueMain: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#111',
+  },
+
+  weeklyGoalValueSub: {
+    fontSize: 14,
+    color: '#888',
   },
 });
