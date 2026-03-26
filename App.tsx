@@ -55,6 +55,23 @@ export default function App() {
     });
   };
 
+  const toggleRecord = (dateKey: string, habitKey: HabitKey) => {
+    setAppData((currentAppData) => {
+      const currentRecord = currentAppData.records[dateKey] ?? EMPTY_DAILY_RECORD;
+
+      return {
+        ...currentAppData,
+        records: {
+          ...currentAppData.records,
+          [dateKey]: {
+            ...currentRecord,
+            [habitKey]: !currentRecord[habitKey],
+          },
+        },
+      };
+    });
+  };
+
   const updateHabits = (habits: Habits) => {
     setAppData((currentAppData) => ({
       ...currentAppData,
@@ -68,7 +85,13 @@ export default function App() {
 
   const renderScreen = () => {
     if (activeTab === 'history') {
-      return <HistoryScreen habits={appData.habits} records={appData.records} />;
+      return (
+        <HistoryScreen
+          habits={appData.habits}
+          records={appData.records}
+          onToggleRecord={toggleRecord}
+        />
+      );
     }
 
     if (activeTab === 'settings') {

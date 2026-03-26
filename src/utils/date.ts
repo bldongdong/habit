@@ -54,6 +54,35 @@ export function formatMonthDayLabel(dateKey: string) {
   }).format(date);
 }
 
+export function formatFullDateLabel(dateKey: string) {
+  const [yearText, monthText, dayText] = dateKey.split('-');
+  const year = Number(yearText);
+  const month = Number(monthText);
+  const day = Number(dayText);
+  const date = new Date(year, month - 1, day);
+
+  return new Intl.DateTimeFormat('ko-KR', {
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+    weekday: 'short',
+  }).format(date);
+}
+
+export function formatShortDateLabel(dateKey: string) {
+  const [yearText, monthText, dayText] = dateKey.split('-');
+  const year = Number(yearText);
+  const month = Number(monthText);
+  const day = Number(dayText);
+  const date = new Date(year, month - 1, day);
+
+  return new Intl.DateTimeFormat('ko-KR', {
+    month: 'numeric',
+    day: 'numeric',
+    weekday: 'short',
+  }).format(date);
+}
+
 export function formatWeekRangeLabel(startDate: Date, endDate: Date) {
   const startMonth = startDate.getMonth() + 1;
   const startDay = startDate.getDate();

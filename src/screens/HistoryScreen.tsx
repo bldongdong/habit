@@ -1,13 +1,13 @@
 import { useMemo, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { MonthRecordGrid } from '../components/MonthRecordGrid';
 import { ScreenContainer } from '../components/ScreenContainer';
-import { StatusDot } from '../components/StatusDot';
 import { WeeklySegmentedBar } from '../components/WeeklySegmentedBar';
-import type { Habits, RecordsByDate } from '../types/habit';
+import type { HabitKey, Habits, RecordsByDate } from '../types/habit';
 import {
   formatMonthDayLabel,
+  formatShortDateLabel,
   formatWeekRangeLabel,
   formatYearMonthLabel,
   getCurrentDay,
@@ -24,9 +24,10 @@ import { getWeeklyHabitCount } from '../utils/weekly';
 type HistoryScreenProps = {
   habits: Habits;
   records: RecordsByDate;
+  onToggleRecord: (dateKey: string, habitKey: HabitKey) => void;
 };
 
-export function HistoryScreen({ habits, records }: HistoryScreenProps) {
+export function HistoryScreen({ habits, records, onToggleRecord }: HistoryScreenProps) {
   const currentDate = useMemo(() => new Date(), []);
   const currentYearMonth = getCurrentYearMonth();
   const currentWeekStart = useMemo(() => getStartOfWeek(currentDate), [currentDate]);
@@ -34,6 +35,7 @@ export function HistoryScreen({ habits, records }: HistoryScreenProps) {
   const [viewedWeekStart, setViewedWeekStart] = useState(currentWeekStart);
   const [viewedYear, setViewedYear] = useState(currentYearMonth.year);
   const [viewedMonth, setViewedMonth] = useState(currentYearMonth.month);
+  const [selectedDateKey, setSelectedDateKey] = useState<string | null>(null);
 
   const viewedWeekEnd = getEndOfWeek(viewedWeekStart);
   const isViewingCurrentWeek = viewedWeekStart.getTime() === currentWeekStart.getTime();
@@ -106,56 +108,17 @@ export function HistoryScreen({ habits, records }: HistoryScreenProps) {
 
   const habit1Weekly = getWeeklyHabitCount(records, 'habit1', viewedWeekStart, viewedWeekEnd);
   const habit2Weekly = getWeeklyHabitCount(records, 'habit2', viewedWeekStart, viewedWeekEnd);
+  const habit1GoalReached = habit1Weekly.successCount >= habits[0].weeklyTarget;
+  const habit2GoalReached = habit2Weekly.successCount >= habits[1].weeklyTarget;
+  const habit1ExtraCount = Math.max(habit1Weekly.successCount - habits[0].weeklyTarget, 0);
+  const habit2ExtraCount = Math.max(habit2Weekly.successCount - habits[1].weeklyTarget, 0);
+
+  const selectedDateRecord = selectedDateKey ? records[selectedDateKey] : undefined;
 
   return (
     <ScreenContainer>
       <View style={styles.header}>
         <Text style={styles.title}>기록 화면</Text>
-      </View>
-
-      <View style={styles.successCard}>
-        <Text style={styles.sectionTitle}>성공률</Text>
-
-        <View style={styles.summaryBlock}>
-          <Text style={styles.summaryBlockTitle}>이번 주 목표 달성</Text>
-          <View style={styles.weeklyGoalRow}>
-            <View style={styles.weeklyGoalCard}>
-              <Text style={styles.weeklyGoalTitle}>{habits[0].title}</Text>
-              <Text style={styles.weeklyGoalValue}>
-                  <Text style={styles.weeklyGoalValueMain}>{habit1Weekly.successCount} 회</Text>
-                  <Text style={styles.weeklyGoalValueSub}> / {habits[0].weeklyTarget}회 목표</Text>
-              </Text>
-            </View>
-
-            <View style={styles.weeklyGoalCard}>
-              <Text style={styles.weeklyGoalTitle}>{habits[1].title}</Text>
-              <Text style={styles.weeklyGoalValue}>
-                <Text style={styles.weeklyGoalValueMain}>{habit2Weekly.successCount} 회</Text>
-                <Text style={styles.weeklyGoalValueSub}> / {habits[1].weeklyTarget}회 목표</Text>
-              </Text>
-            </View>
-          </View>
-        </View>
-
-        <View style={styles.summaryDivider} />
-
-        <View style={styles.summaryBlock}>
-          <Text style={styles.summaryBlockTitle}>이번 달 진행률</Text>
-          <View style={styles.progressCardsRow}>
-            <View style={styles.progressCard}>
-              <Text style={styles.progressLabel}>{habits[0].title} 진행률</Text>
-              <Text style={styles.progressValue}>{habit1SuccessRate}%</Text>
-            </View>
-            <View style={styles.progressCard}>
-              <Text style={styles.progressLabel}>{habits[1].title} 진행률</Text>
-              <Text style={styles.progressValue}>{habit2SuccessRate}%</Text>
-            </View>
-            <View style={styles.progressCard}>
-              <Text style={styles.progressLabel}>총 진행률</Text>
-              <Text style={styles.progressValue}>{totalSuccessRate}%</Text>
-            </View>
-          </View>
-        </View>
       </View>
 
       <View style={styles.sectionCard}>
@@ -182,6 +145,33 @@ export function HistoryScreen({ habits, records }: HistoryScreenProps) {
                 {'>'}
               </Text>
             </Pressable>
+          </View>
+        </View>
+
+        <View style={styles.summaryBlock}>
+          <Text style={styles.summaryBlockTitle}>이번 주 목표 달성</Text>
+          <View style={styles.weeklyGoalRow}>
+            <View style={[styles.weeklyGoalCard, habit1GoalReached && styles.weeklyGoalCardReached]}>
+              <Text style={styles.weeklyGoalTitle}>{habits[0].title}</Text>
+              <Text style={styles.weeklyGoalValue}>
+                <Text style={styles.weeklyGoalValueMain}>{habit1Weekly.successCount} 회</Text>
+                <Text style={styles.weeklyGoalValueSub}> / {habits[0].weeklyTarget}회 목표</Text>
+              </Text>
+              {habit1ExtraCount > 0 ? (
+                <Text style={styles.weeklyGoalBonus}>+{habit1ExtraCount} 초과 달성</Text>
+              ) : null}
+            </View>
+
+            <View style={[styles.weeklyGoalCard, habit2GoalReached && styles.weeklyGoalCardReached]}>
+              <Text style={styles.weeklyGoalTitle}>{habits[1].title}</Text>
+              <Text style={styles.weeklyGoalValue}>
+                <Text style={styles.weeklyGoalValueMain}>{habit2Weekly.successCount} 회</Text>
+                <Text style={styles.weeklyGoalValueSub}> / {habits[1].weeklyTarget}회 목표</Text>
+              </Text>
+              {habit2ExtraCount > 0 ? (
+                <Text style={styles.weeklyGoalBonus}>+{habit2ExtraCount} 초과 달성</Text>
+              ) : null}
+            </View>
           </View>
         </View>
 
@@ -235,6 +225,24 @@ export function HistoryScreen({ habits, records }: HistoryScreenProps) {
           </View>
         </View>
 
+        <View style={styles.summaryBlock}>
+          <Text style={styles.summaryBlockTitle}>이번 달 진행률</Text>
+          <View style={styles.progressCardsRow}>
+            <View style={styles.progressCard}>
+              <Text style={styles.progressLabel}>{habits[0].title}</Text>
+              <Text style={styles.progressValue}>{habit1SuccessRate}%</Text>
+            </View>
+            <View style={styles.progressCard}>
+              <Text style={styles.progressLabel}>{habits[1].title}</Text>
+              <Text style={styles.progressValue}>{habit2SuccessRate}%</Text>
+            </View>
+            <View style={styles.progressCard}>
+              <Text style={styles.progressLabel}>합계</Text>
+              <Text style={styles.progressValue}>{totalSuccessRate}%</Text>
+            </View>
+          </View>
+        </View>
+
         <View style={styles.trackerSection}>
           <View style={styles.trackerHeader}>
             <Text style={styles.trackerLabel}>{habits[0].title}</Text>
@@ -277,18 +285,93 @@ export function HistoryScreen({ habits, records }: HistoryScreenProps) {
               return (
                 <View key={dateKey} style={styles.row}>
                   <Text style={[styles.cell, styles.dateCell]}>{formatMonthDayLabel(dateKey)}</Text>
-                  <View style={styles.statusCell}>
-                    <StatusDot success={Boolean(dailyRecord?.habit1)} />
-                  </View>
-                  <View style={styles.statusCell}>
-                    <StatusDot success={Boolean(dailyRecord?.habit2)} />
-                  </View>
+                  <Pressable
+                    onPress={() => setSelectedDateKey(dateKey)}
+                    style={styles.statusCell}
+                  >
+                    <Text
+                      style={[
+                        styles.statusText,
+                        dailyRecord?.habit1 ? styles.statusTextChecked : styles.statusTextUnchecked,
+                      ]}
+                    >
+                      {dailyRecord?.habit1 ? 'O' : 'X'}
+                    </Text>
+                  </Pressable>
+                  <Pressable
+                    onPress={() => setSelectedDateKey(dateKey)}
+                    style={styles.statusCell}
+                  >
+                    <Text
+                      style={[
+                        styles.statusText,
+                        dailyRecord?.habit2 ? styles.statusTextChecked : styles.statusTextUnchecked,
+                      ]}
+                    >
+                      {dailyRecord?.habit2 ? 'O' : 'X'}
+                    </Text>
+                  </Pressable>
                 </View>
               );
             })}
           </View>
         )}
       </View>
+
+      <Modal
+        visible={Boolean(selectedDateKey)}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setSelectedDateKey(null)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            {selectedDateKey ? (
+              <>
+                <Text style={styles.modalTitle}>{formatShortDateLabel(selectedDateKey)}</Text>
+
+                <Pressable
+                  onPress={() => onToggleRecord(selectedDateKey, 'habit1')}
+                  style={[
+                    styles.modalToggleButton,
+                    selectedDateRecord?.habit1 && styles.modalToggleButtonActive,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.modalToggleButtonText,
+                      selectedDateRecord?.habit1 && styles.modalToggleButtonTextActive,
+                    ]}
+                  >
+                    {habits[0].title}
+                  </Text>
+                </Pressable>
+
+                <Pressable
+                  onPress={() => onToggleRecord(selectedDateKey, 'habit2')}
+                  style={[
+                    styles.modalToggleButton,
+                    selectedDateRecord?.habit2 && styles.modalToggleButtonActive,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.modalToggleButtonText,
+                      selectedDateRecord?.habit2 && styles.modalToggleButtonTextActive,
+                    ]}
+                  >
+                    {habits[1].title}
+                  </Text>
+                </Pressable>
+
+                <Pressable onPress={() => setSelectedDateKey(null)} style={styles.modalCloseButton}>
+                  <Text style={styles.modalCloseButtonText}>닫기</Text>
+                </Pressable>
+              </>
+            ) : null}
+          </View>
+        </View>
+      </Modal>
     </ScreenContainer>
   );
 }
@@ -302,14 +385,6 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: '700',
     color: '#1e1e1c',
-  },
-  successCard: {
-    borderRadius: 22,
-    borderWidth: 1,
-    borderColor: '#e4e4de',
-    backgroundColor: '#ffffff',
-    padding: 18,
-    gap: 18,
   },
   sectionCard: {
     borderRadius: 22,
@@ -339,9 +414,15 @@ const styles = StyleSheet.create({
   weeklyGoalCard: {
     flex: 1,
     borderRadius: 18,
+    borderWidth: 1,
+    borderColor: '#ebece6',
     backgroundColor: '#f8f8f5',
     padding: 16,
     gap: 8,
+  },
+  weeklyGoalCardReached: {
+    borderColor: '#bfe1cc',
+    backgroundColor: '#edf8f1',
   },
   weeklyGoalTitle: {
     fontSize: 16,
@@ -357,9 +438,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#5f5f59',
   },
-  summaryDivider: {
-    height: 1,
-    backgroundColor: '#ecece6',
+  weeklyGoalBonus: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#1f7a4d',
   },
   progressCardsRow: {
     flexDirection: 'row',
@@ -468,6 +550,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: 12,
   },
+  statusText: {
+    fontSize: 18,
+    fontWeight: '700',
+  },
+  statusTextChecked: {
+    color: '#1f7a4d',
+  },
+  statusTextUnchecked: {
+    color: '#1e1e1c',
+  },
   dateHeader: {
     flex: 1.5,
     fontWeight: '700',
@@ -486,6 +578,69 @@ const styles = StyleSheet.create({
   emptyStateText: {
     fontSize: 15,
     color: '#6a6a64',
+  },
+  modalOverlay: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    backgroundColor: 'rgba(18, 18, 18, 0.22)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+  },
+  modalCard: {
+    width: '100%',
+    maxWidth: 320,
+    borderRadius: 22,
+    backgroundColor: '#ffffff',
+    padding: 20,
+    gap: 12,
+    shadowColor: '#111111',
+    shadowOpacity: 0.16,
+    shadowRadius: 16,
+    shadowOffset: {
+      width: 0,
+      height: 8,
+    },
+    elevation: 4,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#1e1e1c',
+    marginBottom: 4,
+  },
+  modalToggleButton: {
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#d9d9d2',
+    backgroundColor: '#fbfbf9',
+    paddingVertical: 14,
+  },
+  modalToggleButtonActive: {
+    borderColor: '#1f7a4d',
+    backgroundColor: '#edf8f1',
+  },
+  modalToggleButtonText: {
+    textAlign: 'center',
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1e1e1c',
+  },
+  modalToggleButtonTextActive: {
+    color: '#1f7a4d',
+  },
+  modalCloseButton: {
+    marginTop: 4,
+    paddingVertical: 10,
+  },
+  modalCloseButtonText: {
+    textAlign: 'center',
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#5f5f59',
   },
   weeklyGoalValueMain: {
     fontSize: 28,
