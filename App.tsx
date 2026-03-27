@@ -7,7 +7,14 @@ import { DEFAULT_APP_DATA, EMPTY_DAILY_RECORD } from './src/constants/habits';
 import { HistoryScreen } from './src/screens/HistoryScreen';
 import { HomeScreen } from './src/screens/HomeScreen';
 import { SettingsScreen } from './src/screens/SettingsScreen';
-import type { AppData, AppTab, DailyRecord, HabitKey, Habits, QuoteLanguage } from './src/types/habit';
+import type {
+  AppData,
+  AppTab,
+  DailyRecord,
+  HabitKey,
+  Habits,
+  QuoteLanguage,
+} from './src/types/habit';
 import { getTodayKey } from './src/utils/date';
 import { loadAppData, saveAppData } from './src/utils/storage';
 import { getHabitStreak } from './src/utils/streak';
@@ -73,10 +80,34 @@ export default function App() {
   };
 
   const updateHabits = (habits: Habits) => {
-    setAppData((currentAppData) => ({
-      ...currentAppData,
-      habits,
-    }));
+    setAppData((currentAppData) => {
+      const nextHabitTitleHistoryByHabit = {
+        habit1: [...currentAppData.habitTitleHistoryByHabit.habit1],
+        habit2: [...currentAppData.habitTitleHistoryByHabit.habit2],
+      };
+
+      if (currentAppData.habits[0].title !== habits[0].title) {
+        nextHabitTitleHistoryByHabit.habit1.push({
+          habitKey: 'habit1',
+          changedAt: todayKey,
+          title: habits[0].title,
+        });
+      }
+
+      if (currentAppData.habits[1].title !== habits[1].title) {
+        nextHabitTitleHistoryByHabit.habit2.push({
+          habitKey: 'habit2',
+          changedAt: todayKey,
+          title: habits[1].title,
+        });
+      }
+
+      return {
+        ...currentAppData,
+        habits,
+        habitTitleHistoryByHabit: nextHabitTitleHistoryByHabit,
+      };
+    });
   };
 
   const updateQuoteLanguage = (quoteLanguage: QuoteLanguage) => {
@@ -96,6 +127,7 @@ export default function App() {
         <HistoryScreen
           habits={appData.habits}
           records={appData.records}
+          habitTitleHistoryByHabit={appData.habitTitleHistoryByHabit}
           onToggleRecord={toggleRecord}
         />
       );

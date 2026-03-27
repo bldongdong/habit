@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { memo, useEffect, useRef } from 'react';
 import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
 import * as Haptics from 'expo-haptics';
 
@@ -9,7 +9,12 @@ type HabitCardProps = {
   onToggle: () => void;
 };
 
-export function HabitCard({ title, description, isChecked, onToggle }: HabitCardProps) {
+export const HabitCard = memo(function HabitCard({
+  title,
+  description,
+  isChecked,
+  onToggle,
+}: HabitCardProps) {
   const scaleValue = useRef(new Animated.Value(1)).current;
   const stampScaleValue = useRef(new Animated.Value(isChecked ? 1 : 0.6)).current;
   const stampOpacityValue = useRef(new Animated.Value(isChecked ? 1 : 0)).current;
@@ -112,6 +117,17 @@ export function HabitCard({ title, description, isChecked, onToggle }: HabitCard
         </Text>
       </Pressable>
     </Animated.View>
+  );
+}, areHabitCardPropsEqual);
+
+function areHabitCardPropsEqual(
+  previousProps: HabitCardProps,
+  nextProps: HabitCardProps
+) {
+  return (
+    previousProps.title === nextProps.title &&
+    previousProps.description === nextProps.description &&
+    previousProps.isChecked === nextProps.isChecked
   );
 }
 

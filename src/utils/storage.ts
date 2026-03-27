@@ -1,12 +1,20 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { DEFAULT_APP_DATA } from '../constants/habits';
-import type { AppData, HabitDetail, QuoteLanguage } from '../types/habit';
+import type {
+  AppData,
+  HabitDetail,
+  HabitKey,
+  HabitTitleHistoryByHabit,
+  HabitTitleHistoryEntry,
+  QuoteLanguage,
+} from '../types/habit';
 
 const STORAGE_KEY = 'two-check-app-data';
 
 type LegacyAppData = Partial<AppData> & {
   habitNames?: [string?, string?];
+  habitTitleHistory?: HabitTitleHistoryEntry[];
 };
 
 function normalizeHabit(
@@ -14,8 +22,12 @@ function normalizeHabit(
   fallbackHabit: HabitDetail,
   legacyTitle?: string
 ) {
+  const normalizedTitle = storedHabit?.title?.trim() || legacyTitle?.trim() || fallbackHabit.title;
+
   return {
-    title: storedHabit?.title?.trim() || legacyTitle?.trim() || fallbackHabit.title,
+    habitKey: fallbackHabit.habitKey,
+    title: normalizedTitle,
+    initialTitle: storedHabit?.initialTitle?.trim() || normalizedTitle,
     description: storedHabit?.description?.trim() || fallbackHabit.description,
     weeklyTarget: storedHabit?.weeklyTarget ?? fallbackHabit.weeklyTarget,
   };
@@ -23,6 +35,40 @@ function normalizeHabit(
 
 function normalizeQuoteLanguage(storedQuoteLanguage: QuoteLanguage | undefined) {
   return storedQuoteLanguage === 'en' ? 'en' : 'kr';
+}
+
+function normalizeHistoryEntries(storedHistory: HabitTitleHistoryEntry[] | undefined) {
+  if (!storedHistory) {
+    return [];
+  }
+
+  return storedHistory
+    .filter(
+      (entry) =>
+        (entry.habitKey === 'habit1' || entry.habitKey === 'habit2') &&
+        typeof entry.changedAt === 'string' &&
+        typeof entry.title === 'string'
+    )
+    .sort((firstEntry, secondEntry) => firstEntry.changedAt.localeCompare(secondEntry.changedAt));
+}
+
+function normalizeHabitTitleHistoryByHabit(
+  storedHistoryByHabit: Partial<Record<HabitKey, HabitTitleHistoryEntry[]>> | undefined,
+  legacyHistory: HabitTitleHistoryEntry[] | undefined
+): HabitTitleHistoryByHabit {
+  if (storedHistoryByHabit) {
+    return {
+      habit1: normalizeHistoryEntries(storedHistoryByHabit.habit1),
+      habit2: normalizeHistoryEntries(storedHistoryByHabit.habit2),
+    };
+  }
+
+  const normalizedLegacyHistory = normalizeHistoryEntries(legacyHistory);
+
+  return {
+    habit1: normalizedLegacyHistory.filter((entry) => entry.habitKey === 'habit1'),
+    habit2: normalizedLegacyHistory.filter((entry) => entry.habitKey === 'habit2'),
+  };
 }
 
 export async function loadAppData() {
@@ -50,6 +96,10 @@ export async function loadAppData() {
       ],
       records: parsedValue.records ?? {},
       quoteLanguage: normalizeQuoteLanguage(parsedValue.quoteLanguage),
+      habitTitleHistoryByHabit: normalizeHabitTitleHistoryByHabit(
+        parsedValue.habitTitleHistoryByHabit,
+        parsedValue.habitTitleHistory
+      ),
     } satisfies AppData;
   } catch {
     return DEFAULT_APP_DATA;

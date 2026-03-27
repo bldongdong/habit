@@ -1,7 +1,11 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useState } from 'react';
 
-import type { HabitDetail, Habits, QuoteLanguage } from '../types/habit';
+import { ContactScreen } from './settings/ContactScreen';
+import { HabitSettingsScreen } from './settings/HabitSettingsScreen';
+import { QuoteSettingsScreen } from './settings/QuoteSettingsScreen';
+import { SettingsMenuScreen } from './settings/SettingsMenuScreen';
+import { InfoPageScreen } from './settings/InfoPageScreen';
+import type { Habits, QuoteLanguage } from '../types/habit';
 
 type SettingsScreenProps = {
   habits: Habits;
@@ -10,19 +14,22 @@ type SettingsScreenProps = {
   onSaveQuoteLanguage: (quoteLanguage: QuoteLanguage) => void;
 };
 
-const WEEKLY_TARGET_OPTIONS = [1, 2, 3, 4, 5, 6, 7];
+type SettingsRoute =
+  | 'menu'
+  | 'habit-settings'
+  | 'quote-settings'
+  | 'rate-app'
+  | 'contact'
+  | 'privacy-policy'
+  | 'terms';
 
-function normalizeHabitInput(inputHabit: HabitDetail, fallbackHabit: HabitDetail) {
-  return {
-    title: inputHabit.title.trim() || fallbackHabit.title,
-    description: inputHabit.description.trim() || fallbackHabit.description,
-    weeklyTarget: inputHabit.weeklyTarget || fallbackHabit.weeklyTarget,
-  };
-}
-
-function areHabitsEqual(firstHabits: Habits, secondHabits: Habits) {
-  return JSON.stringify(firstHabits) === JSON.stringify(secondHabits);
-}
+const APP_VERSION = '버전 1.0.0';
+const RATE_APP_PLACEHOLDER =
+  '앱스토어 또는 플레이스토어 링크를 나중에 연결할 수 있는 자리입니다. 현재는 별점 남기기 placeholder 화면입니다.';
+const PRIVACY_POLICY_PLACEHOLDER =
+  '개인정보처리방침 내용을 여기에 작성하세요. 현재는 앱스토어 제출 전 임시 placeholder 텍스트입니다.';
+const TERMS_PLACEHOLDER =
+  '서비스 이용약관 내용을 여기에 작성하세요. 현재는 앱스토어 제출 전 임시 placeholder 텍스트입니다.';
 
 export function SettingsScreen({
   habits,
@@ -30,373 +37,71 @@ export function SettingsScreen({
   onSaveHabits,
   onSaveQuoteLanguage,
 }: SettingsScreenProps) {
-  const [habitInputs, setHabitInputs] = useState<Habits>(habits);
-  const [quoteLanguageInput, setQuoteLanguageInput] = useState<QuoteLanguage>(quoteLanguage);
-  const [showSavedBanner, setShowSavedBanner] = useState(false);
-  const hideBannerTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [currentRoute, setCurrentRoute] = useState<SettingsRoute>('menu');
 
-  useEffect(() => {
-    setHabitInputs(habits);
-  }, [habits]);
-
-  useEffect(() => {
-    setQuoteLanguageInput(quoteLanguage);
-  }, [quoteLanguage]);
-
-  useEffect(() => {
-    return () => {
-      if (hideBannerTimeoutRef.current) {
-        clearTimeout(hideBannerTimeoutRef.current);
-      }
-    };
-  }, []);
-
-  const normalizedHabitInputs = useMemo<Habits>(
-    () => [
-      normalizeHabitInput(habitInputs[0], habits[0]),
-      normalizeHabitInput(habitInputs[1], habits[1]),
-    ],
-    [habitInputs, habits]
-  );
-
-  const hasHabitChanges = !areHabitsEqual(normalizedHabitInputs, habits);
-  const hasQuoteLanguageChanges = quoteLanguageInput !== quoteLanguage;
-  const hasChanges = hasHabitChanges || hasQuoteLanguageChanges;
-
-  const updateHabitField = (
-    index: number,
-    field: keyof HabitDetail,
-    value: string | number
-  ) => {
-    setHabitInputs((currentHabits) =>
-      currentHabits.map((habit, currentIndex) =>
-        currentIndex === index ? { ...habit, [field]: value } : habit
-      ) as Habits
+  if (currentRoute === 'habit-settings') {
+    return (
+      <HabitSettingsScreen
+        habits={habits}
+        onBack={() => setCurrentRoute('menu')}
+        onSaveHabits={onSaveHabits}
+      />
     );
-  };
+  }
 
-  const saveHabits = () => {
-    if (!hasChanges) {
-      return;
-    }
+  if (currentRoute === 'quote-settings') {
+    return (
+      <QuoteSettingsScreen
+        quoteLanguage={quoteLanguage}
+        onBack={() => setCurrentRoute('menu')}
+        onSaveQuoteLanguage={onSaveQuoteLanguage}
+      />
+    );
+  }
 
-    if (hasHabitChanges) {
-      onSaveHabits(normalizedHabitInputs);
-    }
+  if (currentRoute === 'rate-app') {
+    return (
+      <InfoPageScreen
+        title="별점 남기기"
+        content={RATE_APP_PLACEHOLDER}
+        onBack={() => setCurrentRoute('menu')}
+      />
+    );
+  }
 
-    if (hasQuoteLanguageChanges) {
-      onSaveQuoteLanguage(quoteLanguageInput);
-    }
+  if (currentRoute === 'contact') {
+    return <ContactScreen onBack={() => setCurrentRoute('menu')} />;
+  }
 
-    setHabitInputs(normalizedHabitInputs);
-    setQuoteLanguageInput(quoteLanguageInput);
-    setShowSavedBanner(true);
+  if (currentRoute === 'privacy-policy') {
+    return (
+      <InfoPageScreen
+        title="개인정보처리방침"
+        content={PRIVACY_POLICY_PLACEHOLDER}
+        onBack={() => setCurrentRoute('menu')}
+      />
+    );
+  }
 
-    if (hideBannerTimeoutRef.current) {
-      clearTimeout(hideBannerTimeoutRef.current);
-    }
-
-    hideBannerTimeoutRef.current = setTimeout(() => {
-      setShowSavedBanner(false);
-    }, 1600);
-  };
+  if (currentRoute === 'terms') {
+    return (
+      <InfoPageScreen
+        title="서비스 이용약관"
+        content={TERMS_PLACEHOLDER}
+        onBack={() => setCurrentRoute('menu')}
+      />
+    );
+  }
 
   return (
-    <View style={styles.screen}>
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        style={styles.scrollView}
-        showsVerticalScrollIndicator={false}
-      >
-        <View style={styles.header}>
-          <Text style={styles.title}>설정 화면</Text>
-          <Text style={styles.subtitle}>습관 2개의 이름, 설명, 목표를 직접 바꿀 수 있습니다.</Text>
-        </View>
-
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>습관 설정</Text>
-
-          {habitInputs.map((habit, index) => (
-            <View key={`habit-${index}`} style={styles.habitGroup}>
-              <Text style={styles.groupTitle}>습관 {index + 1}</Text>
-
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>이름</Text>
-                <TextInput
-                  value={habit.title}
-                  onChangeText={(value) => updateHabitField(index, 'title', value)}
-                  placeholder={`습관 ${index + 1} 이름`}
-                  placeholderTextColor="#9a9a93"
-                  style={styles.input}
-                />
-              </View>
-
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>상세 설명</Text>
-                <TextInput
-                  value={habit.description}
-                  onChangeText={(value) => updateHabitField(index, 'description', value)}
-                  placeholder={`습관 ${index + 1} 설명`}
-                  placeholderTextColor="#9a9a93"
-                  style={[styles.input, styles.textarea]}
-                  multiline
-                />
-              </View>
-
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>목표 설정</Text>
-                <Text style={styles.helperText}>(일주일에 몇 번 목표인가요?)</Text>
-                <View style={styles.optionRow}>
-                  {WEEKLY_TARGET_OPTIONS.map((option) => {
-                    const isSelected = habit.weeklyTarget === option;
-
-                    return (
-                      <Pressable
-                        key={option}
-                        onPress={() => updateHabitField(index, 'weeklyTarget', option)}
-                        style={[styles.optionButton, isSelected && styles.optionButtonSelected]}
-                      >
-                        <Text
-                          style={[
-                            styles.optionButtonText,
-                            isSelected && styles.optionButtonTextSelected,
-                          ]}
-                        >
-                          {option === 7 ? '매일' : option}
-                        </Text>
-                      </Pressable>
-                    );
-                  })}
-                </View>
-              </View>
-            </View>
-          ))}
-        </View>
-
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>인용구 설정</Text>
-          <Text style={styles.helperText}>표시할 명언 언어를 선택할 수 있습니다.</Text>
-          <View style={styles.optionRow}>
-            <Pressable
-              onPress={() => setQuoteLanguageInput('kr')}
-              style={[
-                styles.optionButton,
-                quoteLanguageInput === 'kr' && styles.optionButtonSelected,
-              ]}
-            >
-              <Text
-                style={[
-                  styles.optionButtonText,
-                  quoteLanguageInput === 'kr' && styles.optionButtonTextSelected,
-                ]}
-              >
-                한글
-              </Text>
-            </Pressable>
-
-            <Pressable
-              onPress={() => setQuoteLanguageInput('en')}
-              style={[
-                styles.optionButton,
-                quoteLanguageInput === 'en' && styles.optionButtonSelected,
-              ]}
-            >
-              <Text
-                style={[
-                  styles.optionButtonText,
-                  quoteLanguageInput === 'en' && styles.optionButtonTextSelected,
-                ]}
-              >
-                영문
-              </Text>
-            </Pressable>
-          </View>
-        </View>
-      </ScrollView>
-
-      {showSavedBanner ? (
-        <View style={styles.banner}>
-          <Text style={styles.bannerText}>저장되었습니다.</Text>
-        </View>
-      ) : null}
-
-      <View style={styles.floatingFooter}>
-        <Pressable
-          onPress={saveHabits}
-          disabled={!hasChanges}
-          style={[styles.saveButton, !hasChanges && styles.saveButtonDisabled]}
-        >
-          <Text style={[styles.saveButtonText, !hasChanges && styles.saveButtonTextDisabled]}>
-            저장
-          </Text>
-        </Pressable>
-      </View>
-    </View>
+    <SettingsMenuScreen
+      onOpenHabitSettings={() => setCurrentRoute('habit-settings')}
+      onOpenQuoteSettings={() => setCurrentRoute('quote-settings')}
+      onOpenRateApp={() => setCurrentRoute('rate-app')}
+      onOpenContact={() => setCurrentRoute('contact')}
+      onOpenPrivacyPolicy={() => setCurrentRoute('privacy-policy')}
+      onOpenTerms={() => setCurrentRoute('terms')}
+      appVersion={APP_VERSION.replace('버전 ', '')}
+    />
   );
 }
-
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: '#f5f5f3',
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingHorizontal: 20,
-    paddingTop: 24,
-    paddingBottom: 150,
-    gap: 16,
-  },
-  header: {
-    gap: 8,
-    paddingTop: 8,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: '#1e1e1c',
-  },
-  subtitle: {
-    fontSize: 16,
-    lineHeight: 24,
-    color: '#5e5e58',
-  },
-  card: {
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#e4e4de',
-    backgroundColor: '#ffffff',
-    padding: 20,
-    gap: 20,
-  },
-  cardTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#1e1e1c',
-  },
-  habitGroup: {
-    gap: 14,
-    paddingBottom: 4,
-  },
-  groupTitle: {
-    fontSize: 17,
-    fontWeight: '700',
-    color: '#2b2b28',
-  },
-  inputGroup: {
-    gap: 8,
-  },
-  label: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#4f4f4a',
-  },
-  helperText: {
-    fontSize: 13,
-    color: '#6d6d67',
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#d9d9d2',
-    borderRadius: 14,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    fontSize: 16,
-    color: '#1e1e1c',
-    backgroundColor: '#fbfbf9',
-  },
-  textarea: {
-    minHeight: 88,
-    textAlignVertical: 'top',
-  },
-  optionRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  optionButton: {
-    minWidth: 48,
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: '#d9d9d2',
-    backgroundColor: '#fbfbf9',
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-  },
-  optionButtonSelected: {
-    borderColor: '#1e1e1c',
-    backgroundColor: '#1e1e1c',
-  },
-  optionButtonText: {
-    textAlign: 'center',
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#3f3f3a',
-  },
-  optionButtonTextSelected: {
-    color: '#ffffff',
-  },
-  banner: {
-    position: 'absolute',
-    left: 20,
-    right: 20,
-    bottom: 102,
-    borderRadius: 14,
-    backgroundColor: '#1f7a4d',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    shadowColor: '#103b24',
-    shadowOpacity: 0.16,
-    shadowRadius: 10,
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    elevation: 3,
-  },
-  bannerText: {
-    textAlign: 'center',
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#ffffff',
-  },
-  floatingFooter: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    paddingHorizontal: 20,
-    paddingTop: 12,
-    paddingBottom: 20,
-    backgroundColor: 'rgba(245, 245, 243, 0.96)',
-  },
-  saveButton: {
-    borderRadius: 18,
-    backgroundColor: '#1e1e1c',
-    paddingVertical: 16,
-    shadowColor: '#111111',
-    shadowOpacity: 0.14,
-    shadowRadius: 12,
-    shadowOffset: {
-      width: 0,
-      height: 6,
-    },
-    elevation: 4,
-  },
-  saveButtonDisabled: {
-    backgroundColor: '#d8d8d2',
-    shadowOpacity: 0,
-    elevation: 0,
-  },
-  saveButtonText: {
-    textAlign: 'center',
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#ffffff',
-  },
-  saveButtonTextDisabled: {
-    color: '#8b8b85',
-  },
-});

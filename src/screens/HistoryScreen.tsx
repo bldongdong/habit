@@ -4,8 +4,16 @@ import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { MonthRecordGrid } from '../components/MonthRecordGrid';
 import { ScreenContainer } from '../components/ScreenContainer';
 import { WeeklySegmentedBar } from '../components/WeeklySegmentedBar';
-import type { HabitKey, Habits, RecordsByDate } from '../types/habit';
+import type {
+  HabitKey,
+  HabitTitleHistoryByHabit,
+  HabitTitleHistoryEntry,
+  Habits,
+  RecordsByDate,
+} from '../types/habit';
 import {
+  createDateKey,
+  formatHistoryDateLabel,
   formatMonthDayLabel,
   formatShortDateLabel,
   formatWeekRangeLabel,
@@ -19,15 +27,22 @@ import {
   shiftDateByDays,
   shiftYearMonth,
 } from '../utils/date';
+import { getChangesInRange, getDisplayTitleForRange } from '../utils/habitTitleHistory';
 import { getWeeklyHabitCount } from '../utils/weekly';
 
 type HistoryScreenProps = {
   habits: Habits;
   records: RecordsByDate;
+  habitTitleHistoryByHabit: HabitTitleHistoryByHabit;
   onToggleRecord: (dateKey: string, habitKey: HabitKey) => void;
 };
 
-export function HistoryScreen({ habits, records, onToggleRecord }: HistoryScreenProps) {
+export function HistoryScreen({
+  habits,
+  records,
+  habitTitleHistoryByHabit,
+  onToggleRecord,
+}: HistoryScreenProps) {
   const currentDate = useMemo(() => new Date(), []);
   const currentYearMonth = getCurrentYearMonth();
   const currentWeekStart = useMemo(() => getStartOfWeek(currentDate), [currentDate]);
@@ -36,6 +51,9 @@ export function HistoryScreen({ habits, records, onToggleRecord }: HistoryScreen
   const [viewedYear, setViewedYear] = useState(currentYearMonth.year);
   const [viewedMonth, setViewedMonth] = useState(currentYearMonth.month);
   const [selectedDateKey, setSelectedDateKey] = useState<string | null>(null);
+  const [selectedHistoryEntries, setSelectedHistoryEntries] = useState<HabitTitleHistoryEntry[]>([]);
+  const [selectedHistoryInitialTitle, setSelectedHistoryInitialTitle] = useState('');
+  const [isHistoryModalVisible, setIsHistoryModalVisible] = useState(false);
 
   const viewedWeekEnd = getEndOfWeek(viewedWeekStart);
   const isViewingCurrentWeek = viewedWeekStart.getTime() === currentWeekStart.getTime();
@@ -112,8 +130,67 @@ export function HistoryScreen({ habits, records, onToggleRecord }: HistoryScreen
   const habit2GoalReached = habit2Weekly.successCount >= habits[1].weeklyTarget;
   const habit1ExtraCount = Math.max(habit1Weekly.successCount - habits[0].weeklyTarget, 0);
   const habit2ExtraCount = Math.max(habit2Weekly.successCount - habits[1].weeklyTarget, 0);
+  const viewedWeekStartKey = createDateKey(viewedWeekStart);
+  const viewedWeekEndKey = createDateKey(viewedWeekEnd);
+  const viewedMonthStartKey = monthGridDateKeys[0];
+  const viewedMonthEndKey = monthGridDateKeys[monthGridDateKeys.length - 1];
+  const weeklyTitleState = useMemo(
+    () => ({
+      habit1Title: getDisplayTitleForRange(
+        habits[0],
+        habitTitleHistoryByHabit.habit1,
+        viewedWeekEndKey
+      ),
+      habit2Title: getDisplayTitleForRange(
+        habits[1],
+        habitTitleHistoryByHabit.habit2,
+        viewedWeekEndKey
+      ),
+      habit1Changes: getChangesInRange(
+        habitTitleHistoryByHabit.habit1,
+        viewedWeekStartKey,
+        viewedWeekEndKey
+      ),
+      habit2Changes: getChangesInRange(
+        habitTitleHistoryByHabit.habit2,
+        viewedWeekStartKey,
+        viewedWeekEndKey
+      ),
+    }),
+    [habits, habitTitleHistoryByHabit, viewedWeekStartKey, viewedWeekEndKey]
+  );
+  const monthlyTitleState = useMemo(
+    () => ({
+      habit1Title: getDisplayTitleForRange(
+        habits[0],
+        habitTitleHistoryByHabit.habit1,
+        viewedMonthEndKey
+      ),
+      habit2Title: getDisplayTitleForRange(
+        habits[1],
+        habitTitleHistoryByHabit.habit2,
+        viewedMonthEndKey
+      ),
+      habit1Changes: getChangesInRange(
+        habitTitleHistoryByHabit.habit1,
+        viewedMonthStartKey,
+        viewedMonthEndKey
+      ),
+      habit2Changes: getChangesInRange(
+        habitTitleHistoryByHabit.habit2,
+        viewedMonthStartKey,
+        viewedMonthEndKey
+      ),
+    }),
+    [habits, habitTitleHistoryByHabit, viewedMonthStartKey, viewedMonthEndKey]
+  );
 
   const selectedDateRecord = selectedDateKey ? records[selectedDateKey] : undefined;
+  const openHistoryModal = (entries: HabitTitleHistoryEntry[], initialTitle: string) => {
+    setSelectedHistoryEntries(entries);
+    setSelectedHistoryInitialTitle(initialTitle);
+    setIsHistoryModalVisible(true);
+  };
 
   return (
     <ScreenContainer>
@@ -152,20 +229,44 @@ export function HistoryScreen({ habits, records, onToggleRecord }: HistoryScreen
           <Text style={styles.summaryBlockTitle}>이번 주 목표 달성</Text>
           <View style={styles.weeklyGoalRow}>
             <View style={[styles.weeklyGoalCard, habit1GoalReached && styles.weeklyGoalCardReached]}>
-              <Text style={styles.weeklyGoalTitle}>{habits[0].title}</Text>
+              <Text style={styles.weeklyGoalTitle}>{weeklyTitleState.habit1Title}</Text>
               <Text style={styles.weeklyGoalValueMain}>{habit1Weekly.successCount}회</Text>
               <Text style={styles.weeklyGoalValueSub}>/ {habits[0].weeklyTarget}회 목표</Text>
               {habit1ExtraCount > 0 ? (
                 <Text style={styles.weeklyGoalBonus}>(+{habit1ExtraCount}회 달성)</Text>
               ) : null}
+              {weeklyTitleState.habit1Changes.length > 0 ? (
+                <Pressable
+                  onPress={() =>
+                    openHistoryModal(weeklyTitleState.habit1Changes, habits[0].initialTitle)
+                  }
+                  style={styles.historyButton}
+                >
+                  <Text style={styles.historyButtonText}>
+                    변경 이력 {weeklyTitleState.habit1Changes.length}건
+                  </Text>
+                </Pressable>
+              ) : null}
             </View>
 
             <View style={[styles.weeklyGoalCard, habit2GoalReached && styles.weeklyGoalCardReached]}>
-              <Text style={styles.weeklyGoalTitle}>{habits[1].title}</Text>
+              <Text style={styles.weeklyGoalTitle}>{weeklyTitleState.habit2Title}</Text>
               <Text style={styles.weeklyGoalValueMain}>{habit2Weekly.successCount}회</Text>
               <Text style={styles.weeklyGoalValueSub}>/ {habits[1].weeklyTarget}회 목표</Text>
               {habit2ExtraCount > 0 ? (
                 <Text style={styles.weeklyGoalBonus}>(+{habit2ExtraCount}회 달성)</Text>
+              ) : null}
+              {weeklyTitleState.habit2Changes.length > 0 ? (
+                <Pressable
+                  onPress={() =>
+                    openHistoryModal(weeklyTitleState.habit2Changes, habits[1].initialTitle)
+                  }
+                  style={styles.historyButton}
+                >
+                  <Text style={styles.historyButtonText}>
+                    변경 이력 {weeklyTitleState.habit2Changes.length}건
+                  </Text>
+                </Pressable>
               ) : null}
             </View>
           </View>
@@ -173,7 +274,7 @@ export function HistoryScreen({ habits, records, onToggleRecord }: HistoryScreen
 
         <View style={styles.trackerSection}>
           <View style={styles.trackerHeader}>
-            <Text style={styles.trackerLabel}>{habits[0].title}</Text>
+            <Text style={styles.trackerLabel}>{weeklyTitleState.habit1Title}</Text>
             <Text style={styles.trackerValue}>
               {habit1Weekly.successCount === 0
                 ? '시작 전'
@@ -185,7 +286,7 @@ export function HistoryScreen({ habits, records, onToggleRecord }: HistoryScreen
 
         <View style={styles.trackerSection}>
           <View style={styles.trackerHeader}>
-            <Text style={styles.trackerLabel}>{habits[1].title}</Text>
+            <Text style={styles.trackerLabel}>{weeklyTitleState.habit2Title}</Text>
             <Text style={styles.trackerValue}>
               {habit2Weekly.successCount === 0
                 ? '시작 전'
@@ -227,22 +328,46 @@ export function HistoryScreen({ habits, records, onToggleRecord }: HistoryScreen
             <View
               style={[styles.weeklyGoalCard, habit1MonthlyOverRate > 0 && styles.weeklyGoalCardReached]}
             >
-              <Text style={styles.weeklyGoalTitle}>{habits[0].title}</Text>
+              <Text style={styles.weeklyGoalTitle}>{monthlyTitleState.habit1Title}</Text>
               <Text style={styles.weeklyGoalValueMain}>{habit1SuccessRate}%</Text>
               <Text style={styles.weeklyGoalValueSub}>/ {habit1MonthlyTargetRate}% 목표</Text>
               {habit1MonthlyOverRate > 0 ? (
                 <Text style={styles.weeklyGoalBonus}>(+{habit1MonthlyOverRate}% 달성)</Text>
+              ) : null}
+              {monthlyTitleState.habit1Changes.length > 0 ? (
+                <Pressable
+                  onPress={() =>
+                    openHistoryModal(monthlyTitleState.habit1Changes, habits[0].initialTitle)
+                  }
+                  style={styles.historyButton}
+                >
+                  <Text style={styles.historyButtonText}>
+                    변경 이력 {monthlyTitleState.habit1Changes.length}건
+                  </Text>
+                </Pressable>
               ) : null}
             </View>
 
             <View
               style={[styles.weeklyGoalCard, habit2MonthlyOverRate > 0 && styles.weeklyGoalCardReached]}
             >
-              <Text style={styles.weeklyGoalTitle}>{habits[1].title}</Text>
+              <Text style={styles.weeklyGoalTitle}>{monthlyTitleState.habit2Title}</Text>
               <Text style={styles.weeklyGoalValueMain}>{habit2SuccessRate}%</Text>
               <Text style={styles.weeklyGoalValueSub}>/ {habit2MonthlyTargetRate}% 목표</Text>
               {habit2MonthlyOverRate > 0 ? (
                 <Text style={styles.weeklyGoalBonus}>(+{habit2MonthlyOverRate}% 달성)</Text>
+              ) : null}
+              {monthlyTitleState.habit2Changes.length > 0 ? (
+                <Pressable
+                  onPress={() =>
+                    openHistoryModal(monthlyTitleState.habit2Changes, habits[1].initialTitle)
+                  }
+                  style={styles.historyButton}
+                >
+                  <Text style={styles.historyButtonText}>
+                    변경 이력 {monthlyTitleState.habit2Changes.length}건
+                  </Text>
+                </Pressable>
               ) : null}
             </View>
           </View>
@@ -250,7 +375,7 @@ export function HistoryScreen({ habits, records, onToggleRecord }: HistoryScreen
 
         <View style={styles.trackerSection}>
           <View style={styles.trackerHeader}>
-            <Text style={styles.trackerLabel}>{habits[0].title}</Text>
+            <Text style={styles.trackerLabel}>{monthlyTitleState.habit1Title}</Text>
             <Text style={styles.trackerValue}>
               {habit1SuccessCount} / {daysInMonth}일
             </Text>
@@ -260,7 +385,7 @@ export function HistoryScreen({ habits, records, onToggleRecord }: HistoryScreen
 
         <View style={styles.trackerSection}>
           <View style={styles.trackerHeader}>
-            <Text style={styles.trackerLabel}>{habits[1].title}</Text>
+            <Text style={styles.trackerLabel}>{monthlyTitleState.habit2Title}</Text>
             <Text style={styles.trackerValue}>
               {habit2SuccessCount} / {daysInMonth}일
             </Text>
@@ -280,8 +405,8 @@ export function HistoryScreen({ habits, records, onToggleRecord }: HistoryScreen
           <View style={styles.tableCard}>
             <View style={[styles.row, styles.headerRow]}>
               <Text style={[styles.cell, styles.dateHeader]}>날짜</Text>
-              <Text style={styles.cell}>{habits[0].title}</Text>
-              <Text style={styles.cell}>{habits[1].title}</Text>
+              <Text style={styles.cell}>{monthlyTitleState.habit1Title}</Text>
+              <Text style={styles.cell}>{monthlyTitleState.habit2Title}</Text>
             </View>
 
             {visibleDateKeys.map((dateKey) => {
@@ -342,7 +467,7 @@ export function HistoryScreen({ habits, records, onToggleRecord }: HistoryScreen
                       selectedDateRecord?.habit1 && styles.modalToggleButtonTextActive,
                     ]}
                   >
-                    {habits[0].title}
+                    {monthlyTitleState.habit1Title}
                   </Text>
                 </Pressable>
 
@@ -359,7 +484,7 @@ export function HistoryScreen({ habits, records, onToggleRecord }: HistoryScreen
                       selectedDateRecord?.habit2 && styles.modalToggleButtonTextActive,
                     ]}
                   >
-                    {habits[1].title}
+                    {monthlyTitleState.habit2Title}
                   </Text>
                 </Pressable>
 
@@ -368,6 +493,56 @@ export function HistoryScreen({ habits, records, onToggleRecord }: HistoryScreen
                 </Pressable>
               </>
             ) : null}
+          </View>
+        </View>
+      </Modal>
+
+      <Modal
+        visible={isHistoryModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => {
+          setIsHistoryModalVisible(false);
+          setSelectedHistoryInitialTitle('');
+        }}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalCard, styles.historyModalCard]}>
+            <Text style={styles.modalTitle}>습관명 변경 이력</Text>
+
+            <View style={styles.historyTable}>
+              <View style={[styles.historyTableRow, styles.historyTableHeaderRow]}>
+                <Text style={[styles.historyHeaderCell, styles.historyDateCell]}>변경일자</Text>
+                <Text style={styles.historyHeaderCell}>습관명</Text>
+              </View>
+
+              {selectedHistoryEntries.map((entry) => (
+                <View
+                  key={`${entry.habitKey}-${entry.changedAt}-${entry.title}`}
+                  style={styles.historyTableRow}
+                >
+                  <Text style={[styles.historyValueCell, styles.historyDateCell]}>
+                    {formatHistoryDateLabel(entry.changedAt)}
+                  </Text>
+                  <Text style={styles.historyValueCell}>{entry.title}</Text>
+                </View>
+              ))}
+
+              <View style={styles.historyTableRow}>
+                <Text style={[styles.historyValueCell, styles.historyDateCell]}>최초</Text>
+                <Text style={styles.historyValueCell}>{selectedHistoryInitialTitle}</Text>
+              </View>
+            </View>
+
+            <Pressable
+              onPress={() => {
+                setIsHistoryModalVisible(false);
+                setSelectedHistoryInitialTitle('');
+              }}
+              style={styles.modalCloseButton}
+            >
+              <Text style={styles.modalCloseButtonText}>닫기</Text>
+            </Pressable>
           </View>
         </View>
       </Modal>
@@ -446,6 +621,19 @@ const styles = StyleSheet.create({
     lineHeight: 18,
     fontWeight: '700',
     color: '#1f7a4d',
+  },
+  historyButton: {
+    marginTop: 4,
+    alignSelf: 'flex-start',
+    borderRadius: 999,
+    backgroundColor: '#efefe9',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+  },
+  historyButtonText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#4c4c46',
   },
   progressCardsRow: {
     flexDirection: 'row',
@@ -592,6 +780,9 @@ const styles = StyleSheet.create({
     },
     elevation: 4,
   },
+  historyModalCard: {
+    maxWidth: 360,
+  },
   modalTitle: {
     fontSize: 20,
     fontWeight: '700',
@@ -627,5 +818,37 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '600',
     color: '#5f5f59',
+  },
+  historyTable: {
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#ecece6',
+    overflow: 'hidden',
+  },
+  historyTableRow: {
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderBottomColor: '#efefe9',
+  },
+  historyTableHeaderRow: {
+    backgroundColor: '#f8f8f5',
+  },
+  historyHeaderCell: {
+    flex: 1,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#4b4b46',
+  },
+  historyValueCell: {
+    flex: 1,
+    paddingHorizontal: 12,
+    paddingVertical: 11,
+    fontSize: 14,
+    color: '#2f2f2b',
+  },
+  historyDateCell: {
+    flex: 0.9,
   },
 });
