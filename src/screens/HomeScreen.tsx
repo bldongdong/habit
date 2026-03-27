@@ -2,11 +2,13 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { HabitCard } from '../components/HabitCard';
 import { ScreenContainer } from '../components/ScreenContainer';
-import type { DailyRecord, HabitKey, Habits } from '../types/habit';
+import type { DailyRecord, HabitKey, Habits, QuoteLanguage } from '../types/habit';
 import { formatTodayLabel } from '../utils/date';
+import { getTodaysQuote } from '../utils/quotes';
 
 type HomeScreenProps = {
   habits: Habits;
+  quoteLanguage: QuoteLanguage;
   todayRecord: DailyRecord;
   habit1Streak: number;
   habit2Streak: number;
@@ -16,6 +18,7 @@ type HomeScreenProps = {
 
 export function HomeScreen({
   habits,
+  quoteLanguage,
   todayRecord,
   habit1Streak,
   habit2Streak,
@@ -25,13 +28,23 @@ export function HomeScreen({
   const shouldShowHabit1Streak = habit1Streak >= 3;
   const shouldShowHabit2Streak = habit2Streak >= 3;
   const shouldShowStreakSection = shouldShowHabit1Streak || shouldShowHabit2Streak;
+  const todaysQuote = getTodaysQuote(quoteLanguage);
 
   return (
     <ScreenContainer>
       <View style={styles.header}>
         <Text style={styles.date}>{formatTodayLabel()}</Text>
         <Text style={styles.title}>오늘의 두 가지</Text>
-        <Text style={styles.subtitle}>많이 말고, 중요한 두 가지만</Text>
+        {todaysQuote ? (
+          <View style={styles.quoteSection}>
+            <Text style={styles.quoteText}>"{todaysQuote.quote}"</Text>
+            {todaysQuote.author ? (
+              <Text style={styles.quoteAuthor}>- {todaysQuote.author}</Text>
+            ) : null}
+          </View>
+        ) : (
+          <Text style={styles.subtitle}>많이 말고, 중요한 두 가지만</Text>
+        )}
         {shouldShowStreakSection ? (
           <View style={styles.streakSection}>
             {shouldShowHabit1Streak ? (
@@ -92,6 +105,19 @@ const styles = StyleSheet.create({
     fontSize: 17,
     lineHeight: 24,
     color: '#5c5c56',
+  },
+  quoteSection: {
+    gap: 4,
+  },
+  quoteText: {
+    fontSize: 17,
+    lineHeight: 25,
+    color: '#4c4c47',
+  },
+  quoteAuthor: {
+    fontSize: 14,
+    color: '#8a8a84',
+    alignSelf: 'flex-end',
   },
   streakSection: {
     marginTop: 4,

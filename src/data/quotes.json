@@ -1,0 +1,710 @@
+[
+  {
+    "quote_kr": "시작은 일의 가장 중요한 부분이다.",
+    "quote_en": "The beginning is the most important part of the work.",
+    "author_kr": "플라톤",
+    "author_en": "Plato"
+  },
+  {
+    "quote_kr": "천 리 길도 한 걸음부터.",
+    "quote_en": "A journey of a thousand miles begins with a single step.",
+    "author_kr": "노자",
+    "author_en": "Laozi"
+  },
+  {
+    "quote_kr": "우리는 우리가 반복하는 것이다.",
+    "quote_en": "We are what we repeatedly do.",
+    "author_kr": "아리스토텔레스",
+    "author_en": "Aristotle"
+  },
+  {
+    "quote_kr": "행동은 모든 성공의 기초다.",
+    "quote_en": "Action is the foundational key to all success.",
+    "author_kr": "파블로 피카소",
+    "author_en": "Pablo Picasso"
+  },
+  {
+    "quote_kr": "잘 말하는 것보다 잘하는 것이 낫다.",
+    "quote_en": "Well done is better than well said.",
+    "author_kr": "벤자민 프랭클린",
+    "author_en": "Benjamin Franklin"
+  },
+  {
+    "quote_kr": "시계는 보지 말고 시계처럼 행동하라. 계속 가라.",
+    "quote_en": "Don't watch the clock; do what it does. Keep going.",
+    "author_kr": "샘 레벤슨",
+    "author_en": "Sam Levenson"
+  },
+  {
+    "quote_kr": "행동하지 않으면 아무것도 일어나지 않는다.",
+    "quote_en": "Nothing will work unless you do.",
+    "author_kr": "마야 안젤루",
+    "author_en": "Maya Angelou"
+  },
+  {
+    "quote_kr": "성공은 매일 반복되는 작은 노력의 합이다.",
+    "quote_en": "Success is the sum of small efforts repeated day in and day out.",
+    "author_kr": "로버트 콜리어",
+    "author_en": "Robert Collier"
+  },
+  {
+    "quote_kr": "지금이 행동할 때다.",
+    "quote_en": "The time for action is now.",
+    "author_kr": "앙투안 드 생텍쥐페리",
+    "author_en": "Antoine de Saint-Exupéry"
+  },
+  {
+    "quote_kr": "기회는 준비된 사람에게 온다.",
+    "quote_en": "Chance favors the prepared mind.",
+    "author_kr": "루이 파스퇴르",
+    "author_en": "Louis Pasteur"
+  },
+  {
+    "quote_kr": "작은 기회로부터 위대한 일이 시작된다.",
+    "quote_en": "Great things are done by a series of small things brought together.",
+    "author_kr": "빈센트 반 고흐",
+    "author_en": "Vincent van Gogh"
+  },
+  {
+    "quote_kr": "시작하지 않으면 아무것도 이룰 수 없다.",
+    "quote_en": "You miss 100% of the shots you don't take.",
+    "author_kr": "웨인 그레츠키",
+    "author_en": "Wayne Gretzky"
+  },
+  {
+    "quote_kr": "행동이 모든 것을 바꾼다.",
+    "quote_en": "Action expresses priorities.",
+    "author_kr": "마하트마 간디",
+    "author_en": "Mahatma Gandhi"
+  },
+  {
+    "quote_kr": "단순함은 궁극의 정교함이다.",
+    "quote_en": "Simplicity is the ultimate sophistication.",
+    "author_kr": "레오나르도 다 빈치",
+    "author_en": "Leonardo da Vinci"
+  },
+  {
+    "quote_kr": "지속적인 노력이 힘이다.",
+    "quote_en": "Energy and persistence conquer all things.",
+    "author_kr": "벤자민 프랭클린",
+    "author_en": "Benjamin Franklin"
+  },
+  {
+    "quote_kr": "할 수 있다고 믿으면 이미 절반은 이룬 것이다.",
+    "quote_en": "Believe you can and you're halfway there.",
+    "author_kr": "시어도어 루스벨트",
+    "author_en": "Theodore Roosevelt"
+  },
+  {
+    "quote_kr": "가장 좋은 방법은 시작하는 것이다.",
+    "quote_en": "The best way to get started is to quit talking and begin doing.",
+    "author_kr": "월트 디즈니",
+    "author_en": "Walt Disney"
+  },
+  {
+    "quote_kr": "실패는 다시 시작할 기회일 뿐이다.",
+    "quote_en": "Failure is simply the opportunity to begin again.",
+    "author_kr": "헨리 포드",
+    "author_en": "Henry Ford"
+  },
+  {
+    "quote_kr": "오늘 할 수 있는 일을 내일로 미루지 마라.",
+    "quote_en": "Never leave that till tomorrow which you can do today.",
+    "author_kr": "벤자민 프랭클린",
+    "author_en": "Benjamin Franklin"
+  },
+  {
+    "quote_kr": "행동 없는 비전은 꿈에 불과하다.",
+    "quote_en": "Vision without execution is just hallucination.",
+    "author_kr": "토마스 에디슨",
+    "author_en": "Thomas Edison"
+  },
+  {
+    "quote_kr": "우리는 반복을 통해 배운다.",
+    "quote_en": "We learn by doing and by repeating.",
+    "author_kr": "아리스토텔레스",
+    "author_en": "Aristotle"
+  },
+  {
+    "quote_kr": "행동은 말보다 더 큰 힘을 가진다.",
+    "quote_en": "Actions speak louder than words.",
+    "author_kr": "에이브러햄 링컨",
+    "author_en": "Abraham Lincoln"
+  },
+  {
+    "quote_kr": "노력은 결코 배신하지 않는다.",
+    "quote_en": "Effort only fully releases its reward after a person refuses to quit.",
+    "author_kr": "나폴레옹 힐",
+    "author_en": "Napoleon Hill"
+  },
+  {
+    "quote_kr": "성공은 준비와 기회의 만남이다.",
+    "quote_en": "Success is where preparation and opportunity meet.",
+    "author_kr": "바비 언서",
+    "author_en": "Bobby Unser"
+  },
+  {
+    "quote_kr": "행동은 최고의 해답이다.",
+    "quote_en": "The way to get started is to begin doing.",
+    "author_kr": "월트 디즈니",
+    "author_en": "Walt Disney"
+  },
+  {
+    "quote_kr": "오늘을 잡아라.",
+    "quote_en": "Seize the day.",
+    "author_kr": "호라티우스",
+    "author_en": "Horace"
+  },
+  {
+    "quote_kr": "작은 변화가 큰 차이를 만든다.",
+    "quote_en": "Little things make big days.",
+    "author_kr": "이사벨 마랑",
+    "author_en": "Isabel Marant"
+  },
+  {
+    "quote_kr": "행동 없는 지식은 무용지물이다.",
+    "quote_en": "Knowing is not enough; we must apply.",
+    "author_kr": "요한 볼프강 폰 괴테",
+    "author_en": "Johann Wolfgang von Goethe"
+  },
+  {
+    "quote_kr": "지속은 힘이다.",
+    "quote_en": "Perseverance is the hard work you do after you get tired of doing the hard work you already did.",
+    "author_kr": "뉴트 깅리치",
+    "author_en": "Newt Gingrich"
+  },
+  {
+    "quote_kr": "행동이 없으면 변화도 없다.",
+    "quote_en": "Without action, nothing changes.",
+    "author_kr": "알버트 아인슈타인",
+    "author_en": "Albert Einstein"
+  },
+  {
+    "quote_kr": "실패는 다시 시작할 기회다.",
+    "quote_en": "Failure is success in progress.",
+    "author_kr": "알버트 아인슈타인",
+    "author_en": "Albert Einstein"
+  },
+  {
+    "quote_kr": "지금이 가장 중요한 순간이다.",
+    "quote_en": "Now is the only time you have.",
+    "author_kr": "에크하르트 톨레",
+    "author_en": "Eckhart Tolle"
+  },
+  {
+    "quote_kr": "결과는 행동에서 나온다.",
+    "quote_en": "You get what you work for, not what you wish for.",
+    "author_kr": "하워드 A. 터틀",
+    "author_en": "Howard A. Tuttle"
+  },
+  {
+    "quote_kr": "습관은 반복에서 시작된다.",
+    "quote_en": "Habits are formed by repetition.",
+    "author_kr": "찰스 두히그",
+    "author_en": "Charles Duhigg"
+  },
+  {
+    "quote_kr": "오늘의 선택이 미래를 만든다.",
+    "quote_en": "The choices you make today shape your tomorrow.",
+    "author_kr": "존 C. 맥스웰",
+    "author_en": "John C. Maxwell"
+  },
+  {
+    "quote_kr": "행동은 생각을 만든다.",
+    "quote_en": "You cannot control what happens to you, but you can control your attitude toward what happens to you.",
+    "author_kr": "브라이언 트레이시",
+    "author_en": "Brian Tracy"
+  },
+  {
+    "quote_kr": "작은 시작이 큰 결과를 만든다.",
+    "quote_en": "Great things have small beginnings.",
+    "author_kr": "프랜시스 드레이크",
+    "author_en": "Francis Drake"
+  },
+  {
+    "quote_kr": "실천은 최고의 배움이다.",
+    "quote_en": "An ounce of practice is worth more than tons of preaching.",
+    "author_kr": "마하트마 간디",
+    "author_en": "Mahatma Gandhi"
+  },
+  {
+    "quote_kr": "지금 하지 않으면 늦는다.",
+    "quote_en": "Do it now. Sometimes later becomes never.",
+    "author_kr": "익명",
+    "author_en": "Unknown"
+  },
+  {
+    "quote_kr": "변화는 행동에서 시작된다.",
+    "quote_en": "Change begins with action.",
+    "author_kr": "로빈 샤르마",
+    "author_en": "Robin Sharma"
+  },
+  {
+    "quote_kr": "행동 없는 지식은 아무 의미가 없다.",
+    "quote_en": "Knowing is not enough; we must apply.",
+    "author_kr": "요한 볼프강 폰 괴테",
+    "author_en": "Johann Wolfgang von Goethe"
+  },
+  {
+    "quote_kr": "의지가 있는 곳에 길이 있다.",
+    "quote_en": "Where there is a will, there is a way.",
+    "author_kr": "조지 허버트",
+    "author_en": "George Herbert"
+  },
+  {
+    "quote_kr": "오늘 할 수 있는 일을 내일로 미루지 마라.",
+    "quote_en": "Never leave that till tomorrow which you can do today.",
+    "author_kr": "벤자민 프랭클린",
+    "author_en": "Benjamin Franklin"
+  },
+  {
+    "quote_kr": "위대한 일은 작은 일의 반복에서 나온다.",
+    "quote_en": "Great things are done by a series of small things brought together.",
+    "author_kr": "빈센트 반 고흐",
+    "author_en": "Vincent van Gogh"
+  },
+  {
+    "quote_kr": "할 수 있다고 믿으면 이미 절반은 이룬 것이다.",
+    "quote_en": "Believe you can and you're halfway there.",
+    "author_kr": "시어도어 루스벨트",
+    "author_en": "Theodore Roosevelt"
+  },
+  {
+    "quote_kr": "성공은 최종이 아니고 실패는 치명적이지 않다.",
+    "quote_en": "Success is not final, failure is not fatal.",
+    "author_kr": "윈스턴 처칠",
+    "author_en": "Winston Churchill"
+  },
+  {
+    "quote_kr": "지금이 행동할 때다.",
+    "quote_en": "The time for action is now.",
+    "author_kr": "앙투안 드 생텍쥐페리",
+    "author_en": "Antoine de Saint-Exupéry"
+  },
+  {
+    "quote_kr": "기회는 준비된 사람에게 온다.",
+    "quote_en": "Chance favors the prepared mind.",
+    "author_kr": "루이 파스퇴르",
+    "author_en": "Louis Pasteur"
+  },
+  {
+    "quote_kr": "천재는 1%의 영감과 99%의 노력이다.",
+    "quote_en": "Genius is one percent inspiration and ninety-nine percent perspiration.",
+    "author_kr": "토마스 에디슨",
+    "author_en": "Thomas Edison"
+  },
+  {
+    "quote_kr": "노력은 결코 헛되지 않는다.",
+    "quote_en": "Effort only fully releases its reward after a person refuses to quit.",
+    "author_kr": "나폴레옹 힐",
+    "author_en": "Napoleon Hill"
+  },
+  {
+    "quote_kr": "행동이 곧 우선순위를 보여준다.",
+    "quote_en": "Action expresses priorities.",
+    "author_kr": "마하트마 간디",
+    "author_en": "Mahatma Gandhi"
+  },
+  {
+    "quote_kr": "단순함은 궁극의 정교함이다.",
+    "quote_en": "Simplicity is the ultimate sophistication.",
+    "author_kr": "레오나르도 다 빈치",
+    "author_en": "Leonardo da Vinci"
+  },
+  {
+    "quote_kr": "배우는 가장 좋은 방법은 행동하는 것이다.",
+    "quote_en": "The best way to learn is to do.",
+    "author_kr": "폴 할모스",
+    "author_en": "Paul Halmos"
+  },
+  {
+    "quote_kr": "지속은 힘이다.",
+    "quote_en": "Energy and persistence conquer all things.",
+    "author_kr": "벤자민 프랭클린",
+    "author_en": "Benjamin Franklin"
+  },
+  {
+    "quote_kr": "실패는 다시 시작할 기회일 뿐이다.",
+    "quote_en": "Failure is simply the opportunity to begin again.",
+    "author_kr": "헨리 포드",
+    "author_en": "Henry Ford"
+  },
+  {
+    "quote_kr": "행동하지 않으면 아무것도 바뀌지 않는다.",
+    "quote_en": "Nothing will work unless you do.",
+    "author_kr": "마야 안젤루",
+    "author_en": "Maya Angelou"
+  },
+  {
+    "quote_kr": "시계는 보지 말고 시계처럼 행동하라. 계속 가라.",
+    "quote_en": "Don't watch the clock; do what it does. Keep going.",
+    "author_kr": "샘 레벤슨",
+    "author_en": "Sam Levenson"
+  },
+  {
+    "quote_kr": "잘하는 것이 잘 말하는 것보다 낫다.",
+    "quote_en": "Well done is better than well said.",
+    "author_kr": "벤자민 프랭클린",
+    "author_en": "Benjamin Franklin"
+  },
+  {
+    "quote_kr": "행동 없는 비전은 환상에 불과하다.",
+    "quote_en": "Vision without execution is just hallucination.",
+    "author_kr": "토마스 에디슨",
+    "author_en": "Thomas Edison"
+  },
+  {
+    "quote_kr": "작은 기회로부터 위대한 일이 시작된다.",
+    "quote_en": "Great things have small beginnings.",
+    "author_kr": "프랜시스 드레이크",
+    "author_en": "Francis Drake"
+  },
+  {
+    "quote_kr": "말은 느리게 하고 행동은 빠르게 하라.",
+    "quote_en": "Be slow to speak, but swift to act.",
+    "author_kr": "공자",
+    "author_en": "Confucius"
+  },
+  {
+    "quote_kr": "배우고 때때로 익히면 또한 기쁘지 아니한가.",
+    "quote_en": "Is it not a pleasure to learn and practice what is learned?",
+    "author_kr": "공자",
+    "author_en": "Confucius"
+  },
+  {
+    "quote_kr": "아는 것을 안다고 하고 모르는 것을 모른다고 하는 것이 참된 앎이다.",
+    "quote_en": "To know what you know and what you do not know, that is true knowledge.",
+    "author_kr": "공자",
+    "author_en": "Confucius"
+  },
+  {
+    "quote_kr": "천하의 어려운 일도 반드시 쉬운 데서 시작된다.",
+    "quote_en": "Difficult things of the world must have their beginnings in the easy.",
+    "author_kr": "노자",
+    "author_en": "Laozi"
+  },
+  {
+    "quote_kr": "큰 일도 반드시 작은 일에서 시작된다.",
+    "quote_en": "Great things are accomplished by a series of small things.",
+    "author_kr": "노자",
+    "author_en": "Laozi"
+  },
+  {
+    "quote_kr": "남을 아는 자는 지혜롭고, 자신을 아는 자는 밝다.",
+    "quote_en": "He who knows others is wise; he who knows himself is enlightened.",
+    "author_kr": "노자",
+    "author_en": "Laozi"
+  },
+  {
+    "quote_kr": "이기는 자는 싸우기 전에 이기고, 지는 자는 싸운 후에 이기려 한다.",
+    "quote_en": "The victorious strategist wins before the battle.",
+    "author_kr": "손자",
+    "author_en": "Sun Tzu"
+  },
+  {
+    "quote_kr": "지피지기면 백전불태.",
+    "quote_en": "If you know the enemy and know yourself, you need not fear the result of a hundred battles.",
+    "author_kr": "손자",
+    "author_en": "Sun Tzu"
+  },
+  {
+    "quote_kr": "하늘은 스스로 돕는 자를 돕는다.",
+    "quote_en": "Heaven helps those who help themselves.",
+    "author_kr": "맹자",
+    "author_en": "Mencius"
+  },
+  {
+    "quote_kr": "배우고도 생각하지 않으면 얻는 것이 없고, 생각하고도 배우지 않으면 위태롭다.",
+    "quote_en": "Learning without thought is labor lost; thought without learning is perilous.",
+    "author_kr": "공자",
+    "author_en": "Confucius"
+  },
+  {
+    "quote_kr": "죽고자 하면 살고, 살고자 하면 죽는다.",
+    "quote_en": "He who seeks to live shall die, and he who seeks to die shall live.",
+    "author_kr": "이순신",
+    "author_en": "Yi Sun-sin"
+  },
+  {
+    "quote_kr": "배움에는 끝이 없다.",
+    "quote_en": "Learning never exhausts the mind.",
+    "author_kr": "레오나르도 다 빈치",
+    "author_en": "Leonardo da Vinci"
+  },
+  {
+    "quote_kr": "단순함은 궁극의 정교함이다.",
+    "quote_en": "Simplicity is the ultimate sophistication.",
+    "author_kr": "레오나르도 다 빈치",
+    "author_en": "Leonardo da Vinci"
+  },
+  {
+    "quote_kr": "행동이 모든 차이를 만든다.",
+    "quote_en": "Action is the difference between intention and results.",
+    "author_kr": "존 C. 맥스웰",
+    "author_en": "John C. Maxwell"
+  },
+  {
+    "quote_kr": "미래를 예측하는 가장 좋은 방법은 그것을 만드는 것이다.",
+    "quote_en": "The best way to predict the future is to create it.",
+    "author_kr": "피터 드러커",
+    "author_en": "Peter Drucker"
+  },
+  {
+    "quote_kr": "지금 이 순간이 가장 중요하다.",
+    "quote_en": "The present moment is the only time over which we have dominion.",
+    "author_kr": "틱낫한",
+    "author_en": "Thich Nhat Hanh"
+  },
+  {
+    "quote_kr": "우리가 할 수 있는 일을 지금 해야 한다.",
+    "quote_en": "Do what you can, with what you have, where you are.",
+    "author_kr": "시어도어 루스벨트",
+    "author_en": "Theodore Roosevelt"
+  },
+  {
+    "quote_kr": "작은 일에 충실하라. 거기에 힘이 있다.",
+    "quote_en": "Be faithful in small things because it is in them that your strength lies.",
+    "author_kr": "마더 테레사",
+    "author_en": "Mother Teresa"
+  },
+  {
+    "quote_kr": "말보다 행동이 더 큰 힘을 가진다.",
+    "quote_en": "Actions speak louder than words.",
+    "author_kr": "영국 속담",
+    "author_en": "English Proverb"
+  },
+  {
+    "quote_kr": "시작이 반이다.",
+    "quote_en": "Well begun is half done.",
+    "author_kr": "아리스토텔레스",
+    "author_en": "Aristotle"
+  },
+  {
+    "quote_kr": "행동이 곧 결과를 만든다.",
+    "quote_en": "Actions produce results.",
+    "author_kr": "존 C. 맥스웰",
+    "author_en": "John C. Maxwell"
+  },
+  {
+    "quote_kr": "작은 변화가 큰 차이를 만든다.",
+    "quote_en": "Small changes make a big difference.",
+    "author_kr": "익명",
+    "author_en": "Unknown"
+  },
+  {
+    "quote_kr": "지금 이 순간이 가장 중요하다.",
+    "quote_en": "The present moment is all you have.",
+    "author_kr": "틱낫한",
+    "author_en": "Thich Nhat Hanh"
+  },
+  {
+    "quote_kr": "행동이 없으면 아무것도 없다.",
+    "quote_en": "Nothing happens without action.",
+    "author_kr": "마야 안젤루",
+    "author_en": "Maya Angelou"
+  },
+  {
+    "quote_kr": "오늘을 붙잡아라.",
+    "quote_en": "Carpe diem.",
+    "author_kr": "호라티우스",
+    "author_en": "Horace"
+  },
+  {
+    "quote_kr": "반복이 실력을 만든다.",
+    "quote_en": "Practice makes perfect.",
+    "author_kr": "속담",
+    "author_en": "Proverb"
+  },
+  {
+    "quote_kr": "할 수 있다고 믿어라.",
+    "quote_en": "Believe you can.",
+    "author_kr": "시어도어 루스벨트",
+    "author_en": "Theodore Roosevelt"
+  },
+  {
+    "quote_kr": "지금 시작하라.",
+    "quote_en": "Start now.",
+    "author_kr": "세네카",
+    "author_en": "Seneca"
+  },
+  {
+    "quote_kr": "지속이 곧 힘이다.",
+    "quote_en": "Persistence is power.",
+    "author_kr": "속담",
+    "author_en": "Proverb"
+  },
+  {
+    "quote_kr": "행동은 두려움을 이긴다.",
+    "quote_en": "Action conquers fear.",
+    "author_kr": "데일 카네기",
+    "author_en": "Dale Carnegie"
+  },
+  {
+    "quote_kr": "오늘 하지 않으면 내일도 없다.",
+    "quote_en": "Tomorrow never comes.",
+    "author_kr": "존 드라이든",
+    "author_en": "John Dryden"
+  },
+  {
+    "quote_kr": "작게 시작하라.",
+    "quote_en": "Start small.",
+    "author_kr": "세스 고딘",
+    "author_en": "Seth Godin"
+  },
+  {
+    "quote_kr": "행동이 길을 만든다.",
+    "quote_en": "Action creates the path.",
+    "author_kr": "파울로 코엘료",
+    "author_en": "Paulo Coelho"
+  },
+  {
+    "quote_kr": "계속 가라.",
+    "quote_en": "Keep going.",
+    "author_kr": "샘 레벤슨",
+    "author_en": "Sam Levenson"
+  },
+  {
+    "quote_kr": "결과는 행동에서 나온다.",
+    "quote_en": "Results come from action.",
+    "author_kr": "브라이언 트레이시",
+    "author_en": "Brian Tracy"
+  },
+  {
+    "quote_kr": "오늘이 가장 빠른 날이다.",
+    "quote_en": "Today is the earliest day.",
+    "author_kr": "속담",
+    "author_en": "Proverb"
+  },
+  {
+    "quote_kr": "단순함이 힘이다.",
+    "quote_en": "Simplicity is strength.",
+    "author_kr": "레오나르도 다 빈치",
+    "author_en": "Leonardo da Vinci"
+  },
+  {
+    "quote_kr": "행동이 모든 것을 바꾼다.",
+    "quote_en": "Action changes everything.",
+    "author_kr": "토니 로빈스",
+    "author_en": "Tony Robbins"
+  },
+  {
+    "quote_kr": "계속 배고프고, 계속 어리석게 살아라.",
+    "quote_en": "Stay hungry, stay foolish.",
+    "author_kr": "스티브 잡스",
+    "author_en": "Steve Jobs"
+  },
+  {
+    "quote_kr": "위대한 일은 사랑하는 일을 할 때만 가능하다.",
+    "quote_en": "The only way to do great work is to love what you do.",
+    "author_kr": "스티브 잡스",
+    "author_en": "Steve Jobs"
+  },
+  {
+    "quote_kr": "당신의 시간은 한정되어 있다.",
+    "quote_en": "Your time is limited.",
+    "author_kr": "스티브 잡스",
+    "author_en": "Steve Jobs"
+  },
+  {
+    "quote_kr": "가장 큰 위험은 아무 위험도 감수하지 않는 것이다.",
+    "quote_en": "The biggest risk is not taking any risk.",
+    "author_kr": "마크 저커버그",
+    "author_en": "Mark Zuckerberg"
+  },
+  {
+    "quote_kr": "빠르게 움직이고, 과감하게 깨뜨려라.",
+    "quote_en": "Move fast and break things.",
+    "author_kr": "마크 저커버그",
+    "author_en": "Mark Zuckerberg"
+  },
+  {
+    "quote_kr": "무언가 충분히 중요하다면, 확률이 낮아도 해야 한다.",
+    "quote_en": "When something is important enough, you do it even if the odds are not in your favor.",
+    "author_kr": "일론 머스크",
+    "author_en": "Elon Musk"
+  },
+  {
+    "quote_kr": "포기하지 마라.",
+    "quote_en": "Don't give up.",
+    "author_kr": "일론 머스크",
+    "author_en": "Elon Musk"
+  },
+  {
+    "quote_kr": "실패는 선택지다.",
+    "quote_en": "Failure is an option here.",
+    "author_kr": "일론 머스크",
+    "author_en": "Elon Musk"
+  },
+  {
+    "quote_kr": "항상 첫 번째 원리로 생각하라.",
+    "quote_en": "Think from first principles.",
+    "author_kr": "일론 머스크",
+    "author_en": "Elon Musk"
+  },
+  {
+    "quote_kr": "지금 시작하는 것이 가장 중요하다.",
+    "quote_en": "The most important thing is to get started.",
+    "author_kr": "리드 호프먼",
+    "author_en": "Reid Hoffman"
+  },
+  {
+    "quote_kr": "아이디어는 실행이 전부다.",
+    "quote_en": "Ideas are easy. Execution is everything.",
+    "author_kr": "존 도어",
+    "author_en": "John Doerr"
+  },
+  {
+    "quote_kr": "완료가 완벽보다 낫다.",
+    "quote_en": "Done is better than perfect.",
+    "author_kr": "셰릴 샌드버그",
+    "author_en": "Sheryl Sandberg"
+  },
+  {
+    "quote_kr": "무언가를 시작하는 가장 좋은 방법은 시작하는 것이다.",
+    "quote_en": "The best way to get started is to begin.",
+    "author_kr": "제프 베조스",
+    "author_en": "Jeff Bezos"
+  },
+  {
+    "quote_kr": "고객에게 집착하라.",
+    "quote_en": "Obsess over customers.",
+    "author_kr": "제프 베조스",
+    "author_en": "Jeff Bezos"
+  },
+  {
+    "quote_kr": "작게 시작하고 빠르게 성장하라.",
+    "quote_en": "Start small and grow fast.",
+    "author_kr": "에릭 리스",
+    "author_en": "Eric Ries"
+  },
+  {
+    "quote_kr": "실험하라.",
+    "quote_en": "Experiment constantly.",
+    "author_kr": "에릭 리스",
+    "author_en": "Eric Ries"
+  },
+  {
+    "quote_kr": "빠르게 실패하라.",
+    "quote_en": "Fail fast.",
+    "author_kr": "에릭 리스",
+    "author_en": "Eric Ries"
+  },
+  {
+    "quote_kr": "집중은 '아니오'라고 말하는 것이다.",
+    "quote_en": "Focus is saying no.",
+    "author_kr": "스티브 잡스",
+    "author_en": "Steve Jobs"
+  },
+  {
+    "quote_kr": "매일 조금씩 더 나아져라.",
+    "quote_en": "Get a little better every day.",
+    "author_kr": "제임스 클리어",
+    "author_en": "James Clear"
+  },
+  {
+    "quote_kr": "습관은 복리처럼 작용한다.",
+    "quote_en": "Habits are the compound interest of self-improvement.",
+    "author_kr": "제임스 클리어",
+    "author_en": "James Clear"
+  }
+]

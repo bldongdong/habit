@@ -7,7 +7,7 @@ import { DEFAULT_APP_DATA, EMPTY_DAILY_RECORD } from './src/constants/habits';
 import { HistoryScreen } from './src/screens/HistoryScreen';
 import { HomeScreen } from './src/screens/HomeScreen';
 import { SettingsScreen } from './src/screens/SettingsScreen';
-import type { AppData, AppTab, DailyRecord, HabitKey, Habits } from './src/types/habit';
+import type { AppData, AppTab, DailyRecord, HabitKey, Habits, QuoteLanguage } from './src/types/habit';
 import { getTodayKey } from './src/utils/date';
 import { loadAppData, saveAppData } from './src/utils/storage';
 import { getHabitStreak } from './src/utils/streak';
@@ -79,6 +79,13 @@ export default function App() {
     }));
   };
 
+  const updateQuoteLanguage = (quoteLanguage: QuoteLanguage) => {
+    setAppData((currentAppData) => ({
+      ...currentAppData,
+      quoteLanguage,
+    }));
+  };
+
   const allHabitsChecked = todayRecord.habit1 && todayRecord.habit2;
   const habit1Streak = getHabitStreak(appData.records, 'habit1');
   const habit2Streak = getHabitStreak(appData.records, 'habit2');
@@ -95,12 +102,20 @@ export default function App() {
     }
 
     if (activeTab === 'settings') {
-      return <SettingsScreen habits={appData.habits} onSaveHabits={updateHabits} />;
+      return (
+        <SettingsScreen
+          habits={appData.habits}
+          quoteLanguage={appData.quoteLanguage}
+          onSaveHabits={updateHabits}
+          onSaveQuoteLanguage={updateQuoteLanguage}
+        />
+      );
     }
 
     return (
       <HomeScreen
         habits={appData.habits}
+        quoteLanguage={appData.quoteLanguage}
         todayRecord={todayRecord}
         habit1Streak={habit1Streak}
         habit2Streak={habit2Streak}

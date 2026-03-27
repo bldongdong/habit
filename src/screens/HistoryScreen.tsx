@@ -76,10 +76,7 @@ export function HistoryScreen({ habits, records, onToggleRecord }: HistoryScreen
   const visibleDateKeys = isViewingFutureMonth
     ? []
     : isViewingCurrentMonth
-      ? currentMonthDateKeys.filter((dateKey) => {
-          const day = Number(dateKey.slice(-2));
-          return day <= getCurrentDay();
-        })
+      ? currentMonthDateKeys.filter((dateKey) => Number(dateKey.slice(-2)) <= getCurrentDay())
       : currentMonthDateKeys;
   const monthGridDateKeys = currentMonthDateKeys.slice().reverse();
   const daysInMonth = currentMonthDateKeys.length;
@@ -91,20 +88,23 @@ export function HistoryScreen({ habits, records, onToggleRecord }: HistoryScreen
     (dateKey) => records[dateKey]?.habit2
   ).length;
 
-  const calculateSuccessRate = (successCount: number, totalCount: number) => {
-    if (totalCount === 0) {
+  const calculateRate = (value: number, total: number) => {
+    if (total === 0) {
       return 0;
     }
 
-    return Math.round((successCount / totalCount) * 100);
+    return Math.round((value / total) * 100);
   };
 
-  const habit1SuccessRate = calculateSuccessRate(habit1SuccessCount, daysInMonth);
-  const habit2SuccessRate = calculateSuccessRate(habit2SuccessCount, daysInMonth);
-  const totalSuccessRate = calculateSuccessRate(
-    habit1SuccessCount + habit2SuccessCount,
-    daysInMonth * 2
-  );
+  const habit1SuccessRate = calculateRate(habit1SuccessCount, daysInMonth);
+  const habit2SuccessRate = calculateRate(habit2SuccessCount, daysInMonth);
+
+  const habit1MonthlyTargetCount = (habits[0].weeklyTarget / 7) * daysInMonth;
+  const habit2MonthlyTargetCount = (habits[1].weeklyTarget / 7) * daysInMonth;
+  const habit1MonthlyTargetRate = calculateRate(habit1MonthlyTargetCount, daysInMonth);
+  const habit2MonthlyTargetRate = calculateRate(habit2MonthlyTargetCount, daysInMonth);
+  const habit1MonthlyOverRate = habit1SuccessRate - habit1MonthlyTargetRate;
+  const habit2MonthlyOverRate = habit2SuccessRate - habit2MonthlyTargetRate;
 
   const habit1Weekly = getWeeklyHabitCount(records, 'habit1', viewedWeekStart, viewedWeekEnd);
   const habit2Weekly = getWeeklyHabitCount(records, 'habit2', viewedWeekStart, viewedWeekEnd);
@@ -153,23 +153,19 @@ export function HistoryScreen({ habits, records, onToggleRecord }: HistoryScreen
           <View style={styles.weeklyGoalRow}>
             <View style={[styles.weeklyGoalCard, habit1GoalReached && styles.weeklyGoalCardReached]}>
               <Text style={styles.weeklyGoalTitle}>{habits[0].title}</Text>
-              <Text style={styles.weeklyGoalValue}>
-                <Text style={styles.weeklyGoalValueMain}>{habit1Weekly.successCount} 회</Text>
-                <Text style={styles.weeklyGoalValueSub}> / {habits[0].weeklyTarget}회 목표</Text>
-              </Text>
+              <Text style={styles.weeklyGoalValueMain}>{habit1Weekly.successCount}회</Text>
+              <Text style={styles.weeklyGoalValueSub}>/ {habits[0].weeklyTarget}회 목표</Text>
               {habit1ExtraCount > 0 ? (
-                <Text style={styles.weeklyGoalBonus}>+{habit1ExtraCount} 초과 달성</Text>
+                <Text style={styles.weeklyGoalBonus}>(+{habit1ExtraCount}회 달성)</Text>
               ) : null}
             </View>
 
             <View style={[styles.weeklyGoalCard, habit2GoalReached && styles.weeklyGoalCardReached]}>
               <Text style={styles.weeklyGoalTitle}>{habits[1].title}</Text>
-              <Text style={styles.weeklyGoalValue}>
-                <Text style={styles.weeklyGoalValueMain}>{habit2Weekly.successCount} 회</Text>
-                <Text style={styles.weeklyGoalValueSub}> / {habits[1].weeklyTarget}회 목표</Text>
-              </Text>
+              <Text style={styles.weeklyGoalValueMain}>{habit2Weekly.successCount}회</Text>
+              <Text style={styles.weeklyGoalValueSub}>/ {habits[1].weeklyTarget}회 목표</Text>
               {habit2ExtraCount > 0 ? (
-                <Text style={styles.weeklyGoalBonus}>+{habit2ExtraCount} 초과 달성</Text>
+                <Text style={styles.weeklyGoalBonus}>(+{habit2ExtraCount}회 달성)</Text>
               ) : null}
             </View>
           </View>
@@ -228,17 +224,26 @@ export function HistoryScreen({ habits, records, onToggleRecord }: HistoryScreen
         <View style={styles.summaryBlock}>
           <Text style={styles.summaryBlockTitle}>이번 달 진행률</Text>
           <View style={styles.progressCardsRow}>
-            <View style={styles.progressCard}>
-              <Text style={styles.progressLabel}>{habits[0].title}</Text>
-              <Text style={styles.progressValue}>{habit1SuccessRate}%</Text>
+            <View
+              style={[styles.weeklyGoalCard, habit1MonthlyOverRate > 0 && styles.weeklyGoalCardReached]}
+            >
+              <Text style={styles.weeklyGoalTitle}>{habits[0].title}</Text>
+              <Text style={styles.weeklyGoalValueMain}>{habit1SuccessRate}%</Text>
+              <Text style={styles.weeklyGoalValueSub}>/ {habit1MonthlyTargetRate}% 목표</Text>
+              {habit1MonthlyOverRate > 0 ? (
+                <Text style={styles.weeklyGoalBonus}>(+{habit1MonthlyOverRate}% 달성)</Text>
+              ) : null}
             </View>
-            <View style={styles.progressCard}>
-              <Text style={styles.progressLabel}>{habits[1].title}</Text>
-              <Text style={styles.progressValue}>{habit2SuccessRate}%</Text>
-            </View>
-            <View style={styles.progressCard}>
-              <Text style={styles.progressLabel}>합계</Text>
-              <Text style={styles.progressValue}>{totalSuccessRate}%</Text>
+
+            <View
+              style={[styles.weeklyGoalCard, habit2MonthlyOverRate > 0 && styles.weeklyGoalCardReached]}
+            >
+              <Text style={styles.weeklyGoalTitle}>{habits[1].title}</Text>
+              <Text style={styles.weeklyGoalValueMain}>{habit2SuccessRate}%</Text>
+              <Text style={styles.weeklyGoalValueSub}>/ {habit2MonthlyTargetRate}% 목표</Text>
+              {habit2MonthlyOverRate > 0 ? (
+                <Text style={styles.weeklyGoalBonus}>(+{habit2MonthlyOverRate}% 달성)</Text>
+              ) : null}
             </View>
           </View>
         </View>
@@ -285,10 +290,7 @@ export function HistoryScreen({ habits, records, onToggleRecord }: HistoryScreen
               return (
                 <View key={dateKey} style={styles.row}>
                   <Text style={[styles.cell, styles.dateCell]}>{formatMonthDayLabel(dateKey)}</Text>
-                  <Pressable
-                    onPress={() => setSelectedDateKey(dateKey)}
-                    style={styles.statusCell}
-                  >
+                  <Pressable onPress={() => setSelectedDateKey(dateKey)} style={styles.statusCell}>
                     <Text
                       style={[
                         styles.statusText,
@@ -298,10 +300,7 @@ export function HistoryScreen({ habits, records, onToggleRecord }: HistoryScreen
                       {dailyRecord?.habit1 ? 'O' : 'X'}
                     </Text>
                   </Pressable>
-                  <Pressable
-                    onPress={() => setSelectedDateKey(dateKey)}
-                    style={styles.statusCell}
-                  >
+                  <Pressable onPress={() => setSelectedDateKey(dateKey)} style={styles.statusCell}>
                     <Text
                       style={[
                         styles.statusText,
@@ -413,6 +412,7 @@ const styles = StyleSheet.create({
   },
   weeklyGoalCard: {
     flex: 1,
+    minHeight: 124,
     borderRadius: 18,
     borderWidth: 1,
     borderColor: '#ebece6',
@@ -426,44 +426,30 @@ const styles = StyleSheet.create({
   },
   weeklyGoalTitle: {
     fontSize: 16,
+    lineHeight: 22,
     fontWeight: '600',
     color: '#2b2b28',
   },
-  weeklyGoalValue: {
+  weeklyGoalValueMain: {
     fontSize: 28,
+    lineHeight: 34,
     fontWeight: '700',
-    color: '#1e1e1c',
+    color: '#111111',
   },
-  weeklyGoalCaption: {
+  weeklyGoalValueSub: {
     fontSize: 14,
-    color: '#5f5f59',
+    lineHeight: 20,
+    color: '#888888',
   },
   weeklyGoalBonus: {
     fontSize: 13,
+    lineHeight: 18,
     fontWeight: '700',
     color: '#1f7a4d',
   },
   progressCardsRow: {
     flexDirection: 'row',
     gap: 10,
-  },
-  progressCard: {
-    flex: 1,
-    borderRadius: 18,
-    backgroundColor: '#f8f8f5',
-    paddingHorizontal: 14,
-    paddingVertical: 16,
-    gap: 10,
-  },
-  progressLabel: {
-    fontSize: 14,
-    lineHeight: 20,
-    color: '#5f5f59',
-  },
-  progressValue: {
-    fontSize: 30,
-    fontWeight: '700',
-    color: '#1e1e1c',
   },
   sectionHeaderRow: {
     gap: 14,
@@ -641,15 +627,5 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '600',
     color: '#5f5f59',
-  },
-  weeklyGoalValueMain: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: '#111',
-  },
-
-  weeklyGoalValueSub: {
-    fontSize: 14,
-    color: '#888',
   },
 });

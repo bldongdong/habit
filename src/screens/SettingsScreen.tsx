@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
-import type { HabitDetail, Habits } from '../types/habit';
+import type { HabitDetail, Habits, QuoteLanguage } from '../types/habit';
 
 type SettingsScreenProps = {
   habits: Habits;
+  quoteLanguage: QuoteLanguage;
   onSaveHabits: (habits: Habits) => void;
+  onSaveQuoteLanguage: (quoteLanguage: QuoteLanguage) => void;
 };
 
 const WEEKLY_TARGET_OPTIONS = [1, 2, 3, 4, 5, 6, 7];
@@ -22,14 +24,24 @@ function areHabitsEqual(firstHabits: Habits, secondHabits: Habits) {
   return JSON.stringify(firstHabits) === JSON.stringify(secondHabits);
 }
 
-export function SettingsScreen({ habits, onSaveHabits }: SettingsScreenProps) {
+export function SettingsScreen({
+  habits,
+  quoteLanguage,
+  onSaveHabits,
+  onSaveQuoteLanguage,
+}: SettingsScreenProps) {
   const [habitInputs, setHabitInputs] = useState<Habits>(habits);
+  const [quoteLanguageInput, setQuoteLanguageInput] = useState<QuoteLanguage>(quoteLanguage);
   const [showSavedBanner, setShowSavedBanner] = useState(false);
   const hideBannerTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     setHabitInputs(habits);
   }, [habits]);
+
+  useEffect(() => {
+    setQuoteLanguageInput(quoteLanguage);
+  }, [quoteLanguage]);
 
   useEffect(() => {
     return () => {
@@ -47,7 +59,9 @@ export function SettingsScreen({ habits, onSaveHabits }: SettingsScreenProps) {
     [habitInputs, habits]
   );
 
-  const hasChanges = !areHabitsEqual(normalizedHabitInputs, habits);
+  const hasHabitChanges = !areHabitsEqual(normalizedHabitInputs, habits);
+  const hasQuoteLanguageChanges = quoteLanguageInput !== quoteLanguage;
+  const hasChanges = hasHabitChanges || hasQuoteLanguageChanges;
 
   const updateHabitField = (
     index: number,
@@ -66,8 +80,16 @@ export function SettingsScreen({ habits, onSaveHabits }: SettingsScreenProps) {
       return;
     }
 
-    onSaveHabits(normalizedHabitInputs);
+    if (hasHabitChanges) {
+      onSaveHabits(normalizedHabitInputs);
+    }
+
+    if (hasQuoteLanguageChanges) {
+      onSaveQuoteLanguage(quoteLanguageInput);
+    }
+
     setHabitInputs(normalizedHabitInputs);
+    setQuoteLanguageInput(quoteLanguageInput);
     setShowSavedBanner(true);
 
     if (hideBannerTimeoutRef.current) {
@@ -149,6 +171,46 @@ export function SettingsScreen({ habits, onSaveHabits }: SettingsScreenProps) {
               </View>
             </View>
           ))}
+        </View>
+
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>인용구 설정</Text>
+          <Text style={styles.helperText}>표시할 명언 언어를 선택할 수 있습니다.</Text>
+          <View style={styles.optionRow}>
+            <Pressable
+              onPress={() => setQuoteLanguageInput('kr')}
+              style={[
+                styles.optionButton,
+                quoteLanguageInput === 'kr' && styles.optionButtonSelected,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.optionButtonText,
+                  quoteLanguageInput === 'kr' && styles.optionButtonTextSelected,
+                ]}
+              >
+                한글
+              </Text>
+            </Pressable>
+
+            <Pressable
+              onPress={() => setQuoteLanguageInput('en')}
+              style={[
+                styles.optionButton,
+                quoteLanguageInput === 'en' && styles.optionButtonSelected,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.optionButtonText,
+                  quoteLanguageInput === 'en' && styles.optionButtonTextSelected,
+                ]}
+              >
+                영문
+              </Text>
+            </Pressable>
+          </View>
         </View>
       </ScrollView>
 

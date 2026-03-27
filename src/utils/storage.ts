@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { DEFAULT_APP_DATA } from '../constants/habits';
-import type { AppData, HabitDetail } from '../types/habit';
+import type { AppData, HabitDetail, QuoteLanguage } from '../types/habit';
 
 const STORAGE_KEY = 'two-check-app-data';
 
@@ -19,6 +19,10 @@ function normalizeHabit(
     description: storedHabit?.description?.trim() || fallbackHabit.description,
     weeklyTarget: storedHabit?.weeklyTarget ?? fallbackHabit.weeklyTarget,
   };
+}
+
+function normalizeQuoteLanguage(storedQuoteLanguage: QuoteLanguage | undefined) {
+  return storedQuoteLanguage === 'en' ? 'en' : 'kr';
 }
 
 export async function loadAppData() {
@@ -45,6 +49,7 @@ export async function loadAppData() {
         ),
       ],
       records: parsedValue.records ?? {},
+      quoteLanguage: normalizeQuoteLanguage(parsedValue.quoteLanguage),
     } satisfies AppData;
   } catch {
     return DEFAULT_APP_DATA;

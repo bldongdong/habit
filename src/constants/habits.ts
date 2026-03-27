@@ -19,4 +19,5 @@ export const DEFAULT_APP_DATA: AppData = {
     },
   ],
   records: {},
+  quoteLanguage: 'kr',
 };
