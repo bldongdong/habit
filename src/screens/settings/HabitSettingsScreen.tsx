@@ -110,7 +110,9 @@ export function HabitSettingsScreen({
               <Text style={styles.groupTitle}>습관 {index + 1}</Text>
 
               <View style={styles.inputGroup}>
-                <Text style={styles.label}>이름</Text>
+                <Text style={styles.label}>
+                  이름<Text style={{ color: '#ff3b30' }}> *</Text>
+                  </Text>
                 <TextInput
                   value={habit.title}
                   onChangeText={(value) => updateHabitField(index, 'title', value)}
@@ -133,7 +135,9 @@ export function HabitSettingsScreen({
               </View>
 
               <View style={styles.inputGroup}>
-                <Text style={styles.label}>목표 설정</Text>
+                <Text style={styles.label}>
+                  목표 설정<Text style={{ color: '#ff3b30' }}> *</Text>
+                  </Text>
                 <Text style={styles.helperText}>(일주일에 몇 번 목표인가요?)</Text>
                 <View style={styles.optionRow}>
                   {WEEKLY_TARGET_OPTIONS.map((option) => {

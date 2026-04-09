@@ -4,8 +4,8 @@ import Svg, { Circle } from 'react-native-svg';
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
-const STAMP_SIZE = 150;
-const STROKE_WIDTH = 7;
+const STAMP_SIZE = 130;
+const STROKE_WIDTH = 10;
 const CENTER = STAMP_SIZE / 2;
 const RADIUS = (STAMP_SIZE - STROKE_WIDTH) / 2;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
@@ -64,7 +64,7 @@ export const CircleStampOverlay = memo(function CircleStampOverlay({
 const styles = StyleSheet.create({
   wrapper: {
     position: 'absolute',
-    top: 0,
+    top: -3,
     left: 10,
     width: STAMP_SIZE,
     height: STAMP_SIZE,
