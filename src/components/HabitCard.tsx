@@ -1,6 +1,7 @@
 import { memo, useEffect, useRef } from 'react';
-import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Animated, Easing, Pressable, StyleSheet, Text, View } from 'react-native';
 import * as Haptics from 'expo-haptics';
+import { CircleStampOverlay } from './CircleStampOverlay';
 
 type HabitCardProps = {
   title: string;
@@ -16,16 +17,18 @@ export const HabitCard = memo(function HabitCard({
   onToggle,
 }: HabitCardProps) {
   const scaleValue = useRef(new Animated.Value(1)).current;
-  const stampScaleValue = useRef(new Animated.Value(isChecked ? 1 : 0.6)).current;
+  const stampScaleValue = useRef(new Animated.Value(isChecked ? 1 : 0.92)).current;
   const stampOpacityValue = useRef(new Animated.Value(isChecked ? 1 : 0)).current;
+  const stampProgressValue = useRef(new Animated.Value(isChecked ? 1 : 0)).current;
   const previousCheckedRef = useRef(isChecked);
 
   useEffect(() => {
     const wasChecked = previousCheckedRef.current;
 
     if (!wasChecked && isChecked) {
-      stampScaleValue.setValue(0.6);
+      stampScaleValue.setValue(0.92);
       stampOpacityValue.setValue(0);
+      stampProgressValue.setValue(0);
 
       Animated.parallel([
         Animated.sequence([
@@ -41,37 +44,56 @@ export const HabitCard = memo(function HabitCard({
             useNativeDriver: true,
           }),
         ]),
-        Animated.sequence([
-          Animated.parallel([
-            Animated.timing(stampScaleValue, {
-              toValue: 1.12,
-              duration: 120,
+        Animated.parallel([
+          Animated.timing(stampProgressValue, {
+            toValue: 1,
+            duration: 190,
+            easing: Easing.out(Easing.cubic),
+            useNativeDriver: false,
+          }),
+          Animated.sequence([
+            Animated.timing(stampOpacityValue, {
+              toValue: 0.9,
+              duration: 70,
+              easing: Easing.out(Easing.quad),
               useNativeDriver: true,
             }),
             Animated.timing(stampOpacityValue, {
               toValue: 1,
-              duration: 90,
+              duration: 80,
+              easing: Easing.out(Easing.quad),
               useNativeDriver: true,
             }),
           ]),
-          Animated.spring(stampScaleValue, {
-            toValue: 1,
-            speed: 20,
-            bounciness: 8,
-            useNativeDriver: true,
-          }),
+          Animated.sequence([
+            Animated.delay(118),
+            Animated.timing(stampScaleValue, {
+              toValue: 1.04,
+              duration: 50,
+              easing: Easing.out(Easing.cubic),
+              useNativeDriver: true,
+            }),
+            Animated.timing(stampScaleValue, {
+              toValue: 1,
+              duration: 80,
+              easing: Easing.out(Easing.cubic),
+              useNativeDriver: true,
+            }),
+          ]),
         ]),
       ]).start();
     } else if (wasChecked && isChecked) {
       stampScaleValue.setValue(1);
       stampOpacityValue.setValue(1);
+      stampProgressValue.setValue(1);
     } else if (!isChecked) {
-      stampScaleValue.setValue(0.6);
+      stampScaleValue.setValue(0.92);
       stampOpacityValue.setValue(0);
+      stampProgressValue.setValue(0);
     }
 
     previousCheckedRef.current = isChecked;
-  }, [isChecked, scaleValue, stampOpacityValue, stampScaleValue]);
+  }, [isChecked, scaleValue, stampOpacityValue, stampProgressValue, stampScaleValue]);
 
   const handlePress = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => undefined);
@@ -88,18 +110,11 @@ export const HabitCard = memo(function HabitCard({
     >
       <View style={styles.textBlock}>
         {isChecked ? (
-          <Animated.View
-            pointerEvents="none"
-            style={[
-              styles.stampWrapper,
-              {
-                opacity: stampOpacityValue,
-                transform: [{ rotate: '-14deg' }, { scale: stampScaleValue }],
-              },
-            ]}
-          >
-            <Text style={styles.stampText}>COMPLETE</Text>
-          </Animated.View>
+          <CircleStampOverlay
+            opacity={stampOpacityValue}
+            progress={stampProgressValue}
+            scale={stampScaleValue}
+          />
         ) : null}
 
         <Text style={styles.title}>{title}</Text>
@@ -153,31 +168,6 @@ const styles = StyleSheet.create({
   cardChecked: {
     borderColor: '#1f7a4d',
     backgroundColor: '#f4fbf6',
-  },
-  stampWrapper: {
-    position: 'absolute',
-    top: 30,
-    right: 0,
-    paddingHorizontal: 14,
-    paddingVertical: 7,
-    borderWidth: 2,
-    borderColor: '#d32f2f',
-    borderRadius: 10,
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
-    shadowColor: '#0f4f30',
-    shadowOpacity: 0.12,
-    shadowRadius: 6,
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    elevation: 2,
-  },
-  stampText: {
-    fontSize: 16,
-    fontWeight: '800',
-    letterSpacing: 1,
-    color: '#d32f2f',
   },
   textBlock: {
     position: 'relative',

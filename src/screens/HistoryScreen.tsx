@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useMemo, useRef, useState } from 'react';
+import { Animated, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { MonthRecordGrid } from '../components/MonthRecordGrid';
 import { ScreenContainer } from '../components/ScreenContainer';
@@ -46,6 +46,7 @@ export function HistoryScreen({
   const currentDate = useMemo(() => new Date(), []);
   const currentYearMonth = getCurrentYearMonth();
   const currentWeekStart = useMemo(() => getStartOfWeek(currentDate), [currentDate]);
+  const historyScrollY = useRef(new Animated.Value(0)).current;
 
   const [viewedWeekStart, setViewedWeekStart] = useState(currentWeekStart);
   const [viewedYear, setViewedYear] = useState(currentYearMonth.year);
@@ -54,6 +55,8 @@ export function HistoryScreen({
   const [selectedHistoryEntries, setSelectedHistoryEntries] = useState<HabitTitleHistoryEntry[]>([]);
   const [selectedHistoryInitialTitle, setSelectedHistoryInitialTitle] = useState('');
   const [isHistoryModalVisible, setIsHistoryModalVisible] = useState(false);
+  const [historyScrollViewportHeight, setHistoryScrollViewportHeight] = useState(0);
+  const [historyScrollContentHeight, setHistoryScrollContentHeight] = useState(0);
 
   const viewedWeekEnd = getEndOfWeek(viewedWeekStart);
   const isViewingCurrentWeek = viewedWeekStart.getTime() === currentWeekStart.getTime();
@@ -186,9 +189,34 @@ export function HistoryScreen({
   );
 
   const selectedDateRecord = selectedDateKey ? records[selectedDateKey] : undefined;
+  const isHistoryScrollable = historyScrollContentHeight > historyScrollViewportHeight + 4;
+  const historyScrollThumbHeight = isHistoryScrollable
+    ? Math.max(
+        (historyScrollViewportHeight / historyScrollContentHeight) * historyScrollViewportHeight,
+        36
+      )
+    : 0;
+  const historyScrollTrackHeight = historyScrollViewportHeight;
+  const historyScrollMaxOffset = Math.max(
+    historyScrollContentHeight - historyScrollViewportHeight,
+    1
+  );
+  const historyScrollMaxThumbOffset = Math.max(
+    historyScrollTrackHeight - historyScrollThumbHeight,
+    0
+  );
+  const historyScrollThumbTranslateY = historyScrollY.interpolate({
+    inputRange: [0, historyScrollMaxOffset],
+    outputRange: [0, historyScrollMaxThumbOffset],
+    extrapolate: 'clamp',
+  });
+
   const openHistoryModal = (entries: HabitTitleHistoryEntry[], initialTitle: string) => {
     setSelectedHistoryEntries(entries);
     setSelectedHistoryInitialTitle(initialTitle);
+    setHistoryScrollViewportHeight(0);
+    setHistoryScrollContentHeight(0);
+    historyScrollY.setValue(0);
     setIsHistoryModalVisible(true);
   };
 
@@ -516,21 +544,54 @@ export function HistoryScreen({
                 <Text style={styles.historyHeaderCell}>습관명</Text>
               </View>
 
-              {selectedHistoryEntries.map((entry) => (
-                <View
-                  key={`${entry.habitKey}-${entry.changedAt}-${entry.title}`}
-                  style={styles.historyTableRow}
+              <View style={styles.historyTableScrollContainer}>
+                <Animated.ScrollView
+                  style={styles.historyTableScroll}
+                  contentContainerStyle={styles.historyTableScrollContent}
+                  showsVerticalScrollIndicator={false}
+                  scrollEventThrottle={16}
+                  onLayout={(event) => {
+                    setHistoryScrollViewportHeight(event.nativeEvent.layout.height);
+                  }}
+                  onContentSizeChange={(_, contentHeight) => {
+                    setHistoryScrollContentHeight(contentHeight);
+                  }}
+                  onScroll={Animated.event(
+                    [{ nativeEvent: { contentOffset: { y: historyScrollY } } }],
+                    { useNativeDriver: false }
+                  )}
                 >
-                  <Text style={[styles.historyValueCell, styles.historyDateCell]}>
-                    {formatHistoryDateLabel(entry.changedAt)}
-                  </Text>
-                  <Text style={styles.historyValueCell}>{entry.title}</Text>
-                </View>
-              ))}
+                  {selectedHistoryEntries.map((entry) => (
+                    <View
+                      key={`${entry.habitKey}-${entry.changedAt}-${entry.title}`}
+                      style={styles.historyTableRow}
+                    >
+                      <Text style={[styles.historyValueCell, styles.historyDateCell]}>
+                        {formatHistoryDateLabel(entry.changedAt)}
+                      </Text>
+                      <Text style={styles.historyValueCell}>{entry.title}</Text>
+                    </View>
+                  ))}
 
-              <View style={styles.historyTableRow}>
-                <Text style={[styles.historyValueCell, styles.historyDateCell]}>최초</Text>
-                <Text style={styles.historyValueCell}>{selectedHistoryInitialTitle}</Text>
+                  <View style={styles.historyTableRow}>
+                    <Text style={[styles.historyValueCell, styles.historyDateCell]}>최초</Text>
+                    <Text style={styles.historyValueCell}>{selectedHistoryInitialTitle}</Text>
+                  </View>
+                </Animated.ScrollView>
+
+                {isHistoryScrollable ? (
+                  <View pointerEvents="none" style={styles.historyScrollIndicatorTrack}>
+                    <Animated.View
+                      style={[
+                        styles.historyScrollIndicatorThumb,
+                        {
+                          height: historyScrollThumbHeight,
+                          transform: [{ translateY: historyScrollThumbTranslateY }],
+                        },
+                      ]}
+                    />
+                  </View>
+                ) : null}
               </View>
             </View>
 
@@ -824,6 +885,31 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ecece6',
     overflow: 'hidden',
+  },
+  historyTableScrollContainer: {
+    position: 'relative',
+  },
+  historyTableScroll: {
+    maxHeight: 280,
+  },
+  historyTableScrollContent: {
+    flexGrow: 1,
+    paddingRight: 14,
+  },
+  historyScrollIndicatorTrack: {
+    position: 'absolute',
+    top: 10,
+    right: 6,
+    bottom: 10,
+    width: 4,
+    borderRadius: 999,
+    backgroundColor: '#ecece6',
+    overflow: 'hidden',
+  },
+  historyScrollIndicatorThumb: {
+    width: 4,
+    borderRadius: 999,
+    backgroundColor: '#b8b8b0',
   },
   historyTableRow: {
     flexDirection: 'row',
