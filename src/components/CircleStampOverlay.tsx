@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { Animated, StyleSheet } from 'react-native';
-import Svg, { Circle } from 'react-native-svg';
+import Svg, { Circle, Text as SvgText } from 'react-native-svg';
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
@@ -56,6 +56,30 @@ export const CircleStampOverlay = memo(function CircleStampOverlay({
           strokeDashoffset={strokeDashoffset}
           transform={`rotate(-102 ${CENTER} ${CENTER})`}
         />
+        <SvgText
+          x={CENTER}
+          y={CENTER + 1}
+          fill="#d32f2f"
+          fontSize="20"
+          fontWeight="1000"
+          letterSpacing="0.1"
+          textAnchor="middle"
+          transform={`rotate(85 ${CENTER} ${CENTER})`}
+        >
+          COMPLETE
+        </SvgText>
+         <SvgText
+          x={CENTER}
+          y={CENTER + 25}
+          fill="#d32f2f"
+          fontSize="20"
+          fontWeight="500"
+          letterSpacing="0.1"
+          textAnchor="middle"
+          transform={`rotate(85 ${CENTER} ${CENTER})`}
+        >
+          good
+        </SvgText>
       </Svg>
     </Animated.View>
   );
