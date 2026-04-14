@@ -23,12 +23,16 @@ function normalizeHabit(
   legacyTitle?: string
 ) {
   const normalizedTitle = storedHabit?.title?.trim() || legacyTitle?.trim() || fallbackHabit.title;
+  const normalizedDescription =
+    typeof storedHabit?.description === 'string'
+      ? storedHabit.description.trim()
+      : fallbackHabit.description;
 
   return {
     habitKey: fallbackHabit.habitKey,
     title: normalizedTitle,
     initialTitle: storedHabit?.initialTitle?.trim() || normalizedTitle,
-    description: storedHabit?.description?.trim() || fallbackHabit.description,
+    description: normalizedDescription,
     weeklyTarget: storedHabit?.weeklyTarget ?? fallbackHabit.weeklyTarget,
   };
 }

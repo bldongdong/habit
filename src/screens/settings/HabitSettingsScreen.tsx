@@ -17,7 +17,7 @@ function normalizeHabitInput(inputHabit: HabitDetail, fallbackHabit: HabitDetail
     habitKey: fallbackHabit.habitKey,
     title: inputHabit.title.trim() || fallbackHabit.title,
     initialTitle: fallbackHabit.initialTitle,
-    description: inputHabit.description.trim() || fallbackHabit.description,
+    description: inputHabit.description.trim(),
     weeklyTarget: inputHabit.weeklyTarget || fallbackHabit.weeklyTarget,
   };
 }
