@@ -58,27 +58,16 @@ export const CircleStampOverlay = memo(function CircleStampOverlay({
         />
         <SvgText
           x={CENTER}
-          y={CENTER + 1}
+          y={CENTER + 8}
           fill="#d32f2f"
-          fontSize="20"
+          fontSize="25"
           fontWeight="1000"
-          letterSpacing="0.1"
+          letterSpacing="-2"
           textAnchor="middle"
           transform={`rotate(85 ${CENTER} ${CENTER})`}
+          fontFamily="Courier"
         >
-          COMPLETE
-        </SvgText>
-         <SvgText
-          x={CENTER}
-          y={CENTER + 25}
-          fill="#d32f2f"
-          fontSize="20"
-          fontWeight="500"
-          letterSpacing="0.1"
-          textAnchor="middle"
-          transform={`rotate(85 ${CENTER} ${CENTER})`}
-        >
-          good
+          did it.
         </SvgText>
       </Svg>
     </Animated.View>

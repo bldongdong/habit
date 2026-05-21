@@ -65,7 +65,7 @@ export function QuoteSettingsScreen({
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
       >
-        <SettingsHeader title="인용구 설정" onBack={onBack} />
+        <SettingsHeader title="명언 설정" onBack={onBack} />
 
         <View style={styles.card}>
           <Text style={styles.helperText}>표시할 명언 언어를 선택할 수 있습니다.</Text>

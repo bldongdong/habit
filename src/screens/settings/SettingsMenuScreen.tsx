@@ -45,7 +45,7 @@ export function SettingsMenuScreen({
         <Text style={styles.sectionTitle}>설정</Text>
         <View style={styles.menuCard}>
           <MenuItem label="습관 설정" onPress={onOpenHabitSettings} />
-          <MenuItem label="인용구 설정" onPress={onOpenQuoteSettings} />
+          <MenuItem label="명언 설정" onPress={onOpenQuoteSettings} />
         </View>
       </View>
 
