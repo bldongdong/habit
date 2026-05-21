@@ -5,6 +5,7 @@ import { ScreenContainer } from '../../components/ScreenContainer';
 type SettingsMenuScreenProps = {
   onOpenHabitSettings: () => void;
   onOpenQuoteSettings: () => void;
+  onOpenAppIntro: () => void;
   onOpenRateApp: () => void;
   onOpenContact: () => void;
   onOpenPrivacyPolicy: () => void;
@@ -29,6 +30,7 @@ function MenuItem({ label, onPress }: MenuItemProps) {
 export function SettingsMenuScreen({
   onOpenHabitSettings,
   onOpenQuoteSettings,
+  onOpenAppIntro,
   onOpenRateApp,
   onOpenContact,
   onOpenPrivacyPolicy,
@@ -52,6 +54,7 @@ export function SettingsMenuScreen({
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>정보</Text>
         <View style={styles.menuCard}>
+          <MenuItem label="앱 소개" onPress={onOpenAppIntro} />
           <MenuItem label="별점 남기기" onPress={onOpenRateApp} />
           <MenuItem label="문의하기" onPress={onOpenContact} />
           <MenuItem label="개인정보처리방침" onPress={onOpenPrivacyPolicy} />
