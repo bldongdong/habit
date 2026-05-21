@@ -55,6 +55,7 @@ export function HistoryScreen({
   const [selectedHistoryEntries, setSelectedHistoryEntries] = useState<HabitTitleHistoryEntry[]>([]);
   const [selectedHistoryInitialTitle, setSelectedHistoryInitialTitle] = useState('');
   const [isHistoryModalVisible, setIsHistoryModalVisible] = useState(false);
+  const [isRecordInfoVisible, setIsRecordInfoVisible] = useState(false);
   const [historyScrollViewportHeight, setHistoryScrollViewportHeight] = useState(0);
   const [historyScrollContentHeight, setHistoryScrollContentHeight] = useState(0);
 
@@ -423,7 +424,17 @@ export function HistoryScreen({
       </View>
 
       <View style={styles.sectionCard}>
-        <Text style={styles.sectionTitle}>날짜별 기록</Text>
+        <View style={styles.recordSectionTitleRow}>
+          <Text style={styles.sectionTitle}>날짜별 기록</Text>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="날짜별 기록 수정 안내"
+            onPress={() => setIsRecordInfoVisible(true)}
+            style={styles.recordInfoButton}
+          >
+            <Text style={styles.recordInfoButtonText}>?</Text>
+          </Pressable>
+        </View>
 
         {visibleDateKeys.length === 0 ? (
           <View style={styles.emptyState}>
@@ -469,6 +480,29 @@ export function HistoryScreen({
           </View>
         )}
       </View>
+
+      <Modal
+        visible={isRecordInfoVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setIsRecordInfoVisible(false)}
+      >
+        <Pressable style={styles.modalOverlay} onPress={() => setIsRecordInfoVisible(false)}>
+          <Pressable style={styles.modalCard} onPress={(event) => event.stopPropagation()}>
+            <Text style={styles.modalTitle}>기록 수정 안내</Text>
+            <Text style={styles.recordInfoText}>
+              지난 날짜도 눌러서 수정할 수 있어요.{'\n'}
+              실수로 체크했거나 놓친 기록을 나중에 바로잡을 수 있습니다.
+            </Text>
+            <Pressable
+              onPress={() => setIsRecordInfoVisible(false)}
+              style={styles.modalCloseButton}
+            >
+              <Text style={styles.modalCloseButtonText}>확인</Text>
+            </Pressable>
+          </Pressable>
+        </Pressable>
+      </Modal>
 
       <Modal
         visible={Boolean(selectedDateKey)}
@@ -633,6 +667,27 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '700',
     color: '#1e1e1c',
+  },
+  recordSectionTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  recordInfoButton: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    borderWidth: 1,
+    borderColor: '#d9d9d2',
+    backgroundColor: '#f8f8f5',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  recordInfoButtonText: {
+    fontSize: 13,
+    lineHeight: 16,
+    fontWeight: '700',
+    color: '#5f5f59',
   },
   summaryBlock: {
     gap: 14,
@@ -849,6 +904,11 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#1e1e1c',
     marginBottom: 4,
+  },
+  recordInfoText: {
+    fontSize: 15,
+    lineHeight: 22,
+    color: '#4f4f4a',
   },
   modalToggleButton: {
     borderRadius: 16,
