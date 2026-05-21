@@ -1,4 +1,5 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { Animated, Easing, StyleSheet, Text, View } from 'react-native';
 
 import { HabitCard } from '../components/HabitCard';
 import { ScreenContainer } from '../components/ScreenContainer';
@@ -29,6 +30,18 @@ export function HomeScreen({
   const shouldShowHabit2Streak = habit2Streak >= 3;
   const shouldShowStreakSection = shouldShowHabit1Streak || shouldShowHabit2Streak;
   const todaysQuote = getTodaysQuote(quoteLanguage);
+  const [toastTrigger, setToastTrigger] = useState(0);
+  const previousAllHabitsCheckedRef = useRef(allHabitsChecked);
+
+  useEffect(() => {
+    const wasAllHabitsChecked = previousAllHabitsCheckedRef.current;
+
+    if (!wasAllHabitsChecked && allHabitsChecked) {
+      setToastTrigger((currentTrigger) => currentTrigger + 1);
+    }
+
+    previousAllHabitsCheckedRef.current = allHabitsChecked;
+  }, [allHabitsChecked]);
 
   return (
     <ScreenContainer>
@@ -76,13 +89,79 @@ export function HomeScreen({
         />
       </View>
 
-      {allHabitsChecked ? (
-        <View style={styles.messageCard}>
-          <Text style={styles.messageTitle}>좋아요.</Text>
-          <Text style={styles.messageText}>오늘의 기준을 지켰어요.</Text>
-        </View>
-      ) : null}
+      <TodayCompleteToast trigger={toastTrigger} />
     </ScreenContainer>
+  );
+}
+
+function TodayCompleteToast({ trigger }: { trigger: number }) {
+  const opacityValue = useRef(new Animated.Value(0)).current;
+  const scaleValue = useRef(new Animated.Value(0.96)).current;
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    if (trigger === 0) {
+      return undefined;
+    }
+
+    opacityValue.stopAnimation();
+    scaleValue.stopAnimation();
+    opacityValue.setValue(0);
+    scaleValue.setValue(0.96);
+    setIsVisible(true);
+
+    const animation = Animated.sequence([
+      Animated.parallel([
+        Animated.timing(opacityValue, {
+          toValue: 1,
+          duration: 140,
+          easing: Easing.out(Easing.quad),
+          useNativeDriver: true,
+        }),
+        Animated.timing(scaleValue, {
+          toValue: 1,
+          duration: 140,
+          easing: Easing.out(Easing.quad),
+          useNativeDriver: true,
+        }),
+      ]),
+      Animated.delay(2000),
+      Animated.timing(opacityValue, {
+        toValue: 0,
+        duration: 260,
+        easing: Easing.out(Easing.quad),
+        useNativeDriver: true,
+      }),
+    ]);
+
+    animation.start(({ finished }) => {
+      if (finished) {
+        setIsVisible(false);
+      }
+    });
+
+    return () => {
+      animation.stop();
+    };
+  }, [opacityValue, scaleValue, trigger]);
+
+  if (!isVisible) {
+    return null;
+  }
+
+  return (
+    <Animated.View
+      pointerEvents="none"
+      style={[
+        styles.toast,
+        {
+          opacity: opacityValue,
+          transform: [{ scale: scaleValue }],
+        },
+      ]}
+    >
+      <Text style={styles.toastText}>동그라미 두 개,{'\n'}오늘은 충분해요 :)</Text>
+    </Animated.View>
   );
 }
 
@@ -131,22 +210,29 @@ const styles = StyleSheet.create({
   cardList: {
     gap: 14,
   },
-  messageCard: {
-    borderRadius: 20,
-    backgroundColor: '#f1f7f2',
-    borderWidth: 1,
-    borderColor: '#dcebdd',
-    padding: 20,
-    gap: 6,
+  toast: {
+    position: 'absolute',
+    top: '42%',
+    left: 20,
+    right: 20,
+    alignItems: 'center',
+    borderRadius: 16,
+    backgroundColor: 'rgba(30, 30, 28, 0.88)',
+    paddingHorizontal: 40,
+    paddingVertical: 20,
+    shadowColor: '#1c1c1c',
+    shadowOpacity: 0.12,
+    shadowRadius: 10,
+    shadowOffset: {
+      width: 0,
+      height: 10,
+    },
+    elevation: 4,
   },
-  messageTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#1f7a4d',
-  },
-  messageText: {
-    fontSize: 16,
-    lineHeight: 24,
-    color: '#356346',
+  toastText: {
+    fontSize: 17,
+    fontWeight: '600',
+    color: '#ffffff',
+    textAlign: 'center'
   },
 });
